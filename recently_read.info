@@ -1,0 +1,4 @@
+name = Recently read
+description = Tracks the history of recently read content by each user.
+core = 6.x
+package = Other
