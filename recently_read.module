@@ -131,9 +131,12 @@ function recently_read_exit() {
     );
     while($nid = db_result($result)) {
       $nids[] = $nid;
-    }
+    };
     if (count($nids)) {
-      db_query("DELETE FROM {recently_read_nodes} WHERE uid = %d AND nid IN(%s)", $user->uid, implode(',',$nids));
+      $placeholders = implode(',', array_fill(0, count($nids), "%d"));
+      db_query("DELETE FROM {recently_read_nodes} WHERE uid = %d AND nid IN($placeholders)",
+        array_merge((array) $user->uid, $nids)
+      );
     }
 
   }
