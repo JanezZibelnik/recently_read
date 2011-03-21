@@ -1,4 +1,12 @@
 <?php
+// $Id$
+
+/**
+ * @file
+ * Recently read module file.
+ * Displays a history of recently read nodes by currently logged in user.
+ */
+
 
 /**
  * Implementation of hook_help().
@@ -10,7 +18,7 @@
   return '<p>' . t('Recently read settings options.') . '</p>';
   }
   }
- * 
+ *
  */
 
 /**
@@ -40,7 +48,7 @@ function recently_read_block($op = 'list', $delta = 0, $edit = array()) {
       $enabled = variable_get('recently_read_node_types', array('page', 'story'));
       $blocks = array();
       foreach ($enabled as $key) {
-        $blocks[$key]['info'] = t('Recently read - !type', array('!type'=>$types[$key]->name));
+        $blocks[$key]['info'] = t('Recently read - !type', array('!type' => $types[$key]->name));
       }
       return $blocks;
 
@@ -48,7 +56,7 @@ function recently_read_block($op = 'list', $delta = 0, $edit = array()) {
       // allow user to customize the length of a list for each node type
       $max_entries = variable_get('recently_read_max_entries', 10);
       $max_count = variable_get("recently_read_max_length", array('page' => 10, 'story' => 10));
-      
+
       $form['items_count'] = array(
         '#type' => 'textfield',
         '#title' => t('Maximum number of links to display in the block'),
@@ -73,7 +81,9 @@ function recently_read_block($op = 'list', $delta = 0, $edit = array()) {
       global $user;
 
       // hide block if anonymous
-      if (user_is_anonymous()) return NULL;
+      if (user_is_anonymous()) {
+        return NULL;
+      }
 
       // make a list of links to recently read nodes which are published
       $max_entries = variable_get('recently_read_max_entries', 10);
@@ -92,8 +102,8 @@ function recently_read_block($op = 'list', $delta = 0, $edit = array()) {
 
       $types = node_get_types();
       return array(
-        'subject' => t('Recently read - !type', array('!type'=>$types[$delta]->name)),
-        'content' => count($items) ? theme('item_list',$items) : t('Nothing has been read yet.')
+        'subject' => t('Recently read - !type', array('!type' => $types[$delta]->name)),
+        'content' => count($items) ? theme('item_list', $items) : t('Nothing has been read yet.')
       );
   }
 }
@@ -125,11 +135,11 @@ function recently_read_exit() {
     // @todo - move to hook_cron
     $nids = array();
     $result = db_query("SELECT nid FROM {recently_read_nodes} WHERE uid = %d and type = '%s' ORDER BY timestamp DESC LIMIT %d,1000",
-      $user->uid, 
+      $user->uid,
       $type,
       variable_get('recently_read_max_entries', 10)+1
     );
-    while($nid = db_result($result)) {
+    while ($nid = db_result($result)) {
       $nids[] = $nid;
     };
     if (count($nids)) {
@@ -191,8 +201,9 @@ function recently_read_settings_validate($form, &$form_state) {
 function recently_read_settings_submit($form, &$form_state) {
   $selected = array();
   foreach ($form_state['values']['node_types'] as $value) {
-    if ($value)
+    if ($value) {
       $selected[] = $value;
+    }
   }
   variable_set('recently_read_node_types', $selected);
   variable_set('recently_read_max_entries', $form_state['values']['max_entries']);

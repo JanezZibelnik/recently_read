@@ -1,4 +1,11 @@
 <?php
+// $Id$
+
+/**
+ * @file
+ * Recently read installation file.
+ * Displays a history of recently read nodes by currently logged in user.
+ */
 
 
 /**
