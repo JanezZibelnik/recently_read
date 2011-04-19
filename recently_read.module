@@ -48,7 +48,7 @@ function recently_read_block($op = 'list', $delta = 0, $edit = array()) {
       $enabled = variable_get('recently_read_node_types', array('page', 'story'));
       $blocks = array();
       foreach ($enabled as $key) {
-        $blocks[$key]['info'] = t('Recently read - !type', array('!type' => $types[$key]->name));
+        $blocks[$key]['info'] = t('Recently read - @type', array('@type' => $types[$key]->name));
       }
       return $blocks;
 
@@ -102,7 +102,7 @@ function recently_read_block($op = 'list', $delta = 0, $edit = array()) {
 
       $types = node_get_types();
       return array(
-        'subject' => t('Recently read - !type', array('!type' => $types[$delta]->name)),
+        'subject' => t('Recently read - @type', array('@type' => $types[$delta]->name)),
         'content' => count($items) ? theme('item_list', $items) : t('Nothing has been read yet.')
       );
   }
@@ -122,12 +122,22 @@ function recently_read_exit() {
     $type = db_result(db_query('SELECT type FROM {node} WHERE nid = %d', $nid));
 
     if (recently_read_is_enabled($type)) {
-      // A node has been viewed, so mark node as read.
-      db_query('UPDATE {recently_read_nodes} SET timestamp = %d WHERE nid = %d AND uid = %d', time(), $nid, $user->uid);
-      // If we affected 0 rows, this is the first time viewing the node.
-      if (!db_affected_rows()) {
-        // We must create a new row to store node history.
-        db_query("INSERT INTO {recently_read_nodes} (nid, uid, type, timestamp) VALUES (%d, %d, '%s', %d)", $nid, $user->uid, $type, time());
+      $record = new stdClass();
+      $record->nid = $nid;
+      $record->type = $type;
+      $record->uid = $user->uid;
+      $record->timestamp = time();
+
+      $count = db_result(db_query(
+        'SELECT COUNT(*) FROM {recently_read_nodes} WHERE nid = %d AND uid = %d AND type = "%s"',
+        $nid, $user->uid, $type
+      ));
+      // A node has been viewed, so mark it as read
+      if ($count > 0) {
+        drupal_write_record('recently_read_nodes', $record, array('nid', 'uid'));
+      }
+      else {
+        drupal_write_record('recently_read_nodes', $record);
       }
     }
 
