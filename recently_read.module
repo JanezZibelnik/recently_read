@@ -9,19 +9,6 @@
 
 
 /**
- * Implementation of hook_help().
- */
-/*
-  function recently_read_help($path, $arg) {
-  switch ($path) {
-  case 'admin/settings/recently-read':
-  return '<p>' . t('Recently read settings options.') . '</p>';
-  }
-  }
- *
- */
-
-/**
  * Implementation of hook_menu().
  */
 function recently_read_menu() {
