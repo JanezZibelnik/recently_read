@@ -1,4 +1,8 @@
 name = Recently read
 description = Tracks the history of recently read content by each user.
-core = 6.x
+core = 7.x
 package = Other
+configure = admin/config/system/recently-read
+
+files[] = recently_read.install
+files[] = recently_read.module

@@ -9,10 +9,10 @@
 
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function recently_read_menu() {
-  $items['admin/settings/recently-read'] = array(
+  $items['admin/config/system/recently-read'] = array(
     'title' => 'Recently read content',
     'description' => 'Tracks the history of recently read content by each user.',
     'page callback' => 'drupal_get_form',
@@ -25,111 +25,135 @@ function recently_read_menu() {
 
 
 /**
- * Implementation of hook_block().
+ * Implements hook_block_info().
  */
-function recently_read_block($op = 'list', $delta = 0, $edit = array()) {
-  switch ($op) {
-    case 'list':
-      // each enabled content type has its own block
-      $types = node_get_types();
-      $enabled = variable_get('recently_read_node_types', array('page', 'story'));
-      $blocks = array();
-      foreach ($enabled as $key) {
-        $blocks[$key]['info'] = t('Recently read - @type', array('@type' => $types[$key]->name));
-      }
-      return $blocks;
-
-    case 'configure':
-      // allow user to customize the length of a list for each node type
-      $max_entries = variable_get('recently_read_max_entries', 10);
-      $max_count = variable_get("recently_read_max_length", array('page' => 10, 'story' => 10));
-
-      $form['items_count'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Maximum number of links to display in the block'),
-        '#description' => t('Enter the positive integer value, less or equal to %limit.',
-          array('%limit' => $max_entries)
-        ),
-        '#default_value' => (key_exists($delta, $max_count)) ? $max_count[$delta] : $max_entries,
+function recently_read_block_info() {
+  // each enabled content type has its own block
+  $types = node_type_get_types();
+  $enabled = variable_get('recently_read_node_types', array('page', 'article'));
+  $blocks = array();
+  foreach ($enabled as $key) {
+    if (isset($types[$key])) {
+      $blocks[$key] = array(
+        'info' => t('Recently read - @type', array('@type' => $types[$key]->name))
       );
-      return $form;
-
-    case 'save':
-      // save configuration settings
-      $max_entries = variable_get('recently_read_max_entries', 10);
-      $value = max(1, min($edit['items_count'], $max_entries));
-      $max_count = variable_get('recently_read_max_length', array('page' => 10, 'story' => 10));
-      $max_count[$delta] = $value;
-      variable_set('recently_read_max_length', $max_count);
-      return;
-
-    case 'view':
-      // view block containing links to recently visited nodes
-      global $user;
-
-      // get history from _SESSION variable if anonymous
-      if (!$user->uid && variable_get('recently_read_anonymous_enabled', FALSE)) {
-        $key = "recently_read-$delta";
-        $items = array();
-        if ($_SESSION[$key]) {
-          foreach ($_SESSION[$key] as $nid => $title) {
-            $items[] = l($title, "node/$nid");
-          }
-        }
-      }
-      
-      // get history from database variable if authenticated
-      if ($user->uid) {
-        // make a list of links to recently read nodes which are published
-        $max_entries = variable_get('recently_read_max_entries', 10);
-        $max_count = variable_get('recently_read_max_length', array('page' => 10, 'story' => 10));
-        $result = db_query("SELECT n.nid, n.title FROM {node} n
-          INNER JOIN {recently_read_nodes} rr
-          ON n.nid = rr.nid WHERE rr.uid = %d AND n.status = 1 AND n.type = '%s'
-          ORDER BY rr.timestamp DESC
-          LIMIT 0, %d",
-          $user->uid, $delta, (key_exists($delta, $max_count)) ? $max_count[$delta] : $max_entries
-        );
-        $items = array();
-        while ($row = db_fetch_object($result)) {
-          $items[] = l($row->title, "node/{$row->nid}");
-        }
-      }
-
-
-      $types = node_get_types();
-      return array(
-        'subject' => t('Recently read - @type', array('@type' => $types[$delta]->name)),
-        'content' => count($items) ? theme('item_list', $items) : t('Nothing has been read yet.')
-      );
+    }
   }
+  return $blocks;
 }
 
 
-function recently_read_exit() {
+/**
+ * Implements hook_block_configure().
+ */
+function recently_read_block_configure($delta) {
+  // allow user to customize the length of a list for each node type
+  $max_entries = variable_get('recently_read_max_entries', 10);
+  $max_count = variable_get("recently_read_max_length", array('page' => 10, 'article' => 10));
+
+  $form['items_count'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum number of links to display in the block'),
+    '#description' => t('Enter the positive integer value, less or equal to %limit.',
+          array('%limit' => $max_entries)
+        ),
+    '#default_value' => (key_exists($delta, $max_count)) ? $max_count[$delta] : $max_entries,
+  );
+  return $form;
+}
+
+
+/**
+ * Implements hook_block_save().
+ */
+function recently_read_block_save($delta, $edit) {
+  // save configuration settings
+  $max_entries = variable_get('recently_read_max_entries', 10);
+  $value = max(1, min($edit['items_count'], $max_entries));
+  $max_count = variable_get('recently_read_max_length', array('page' => 10, 'article' => 10));
+  $max_count[$delta] = $value;
+  variable_set('recently_read_max_length', $max_count);
+  return;
+}
+
+
+/**
+ * Implements hook_block_view().
+ */
+function recently_read_block_view($delta) {
+  // view block containing links to recently visited nodes
   global $user;
 
-  drupal_bootstrap(DRUPAL_BOOTSTRAP_PATH);
-  
+  $items = array();
+
+  if (!$user->uid && !variable_get('recently_read_anonymous_enabled', FALSE)) {
+    return NULL;
+  }
+
+  // get history from _SESSION variable if anonymous
+  if (!$user->uid && variable_get('recently_read_anonymous_enabled', FALSE) ) {
+    $key = "recently_read-$delta";
+    if (isset($_SESSION) && isset($_SESSION[$key])) {
+      foreach ($_SESSION[$key] as $nid => $title) {
+        $items[] = l($title, "node/$nid");
+      }
+    }
+  }
+
+  // get history from database variable if authenticated
+  if ($user->uid) {
+    // make a list of links to recently read nodes which are published
+    $max_entries = variable_get('recently_read_max_entries', 10);
+    $max_count = variable_get('recently_read_max_length', array('page' => 10, 'article' => 10));
+
+    $result = db_query_range("SELECT n.nid, n.title FROM {node} n
+      INNER JOIN {recently_read_nodes} rr
+      ON n.nid = rr.nid WHERE rr.uid = :uid AND n.status = :status AND n.type = :type
+      ORDER BY rr.timestamp DESC", 0, isset($max_count[$delta]) ? $max_count[$delta] : $max_entries, array(
+      ':uid' => $user->uid,
+      ':status' => 1,
+      ':type' => $delta,
+    ));
+    
+    while ($row = $result->fetchObject()) {
+      $items[] = l($row->title, "node/{$row->nid}");
+    }
+  }
+
+  $types = node_type_get_types();
+  return array(
+    'subject' => t('Recently read - @type', array('@type' => $types[$delta]->name)),
+    'content' => count($items) ? theme('item_list', array('items' => $items)) : t('Nothing has been read yet.'),
+  );
+}
+
+
+/**
+ * Implements hook_exit().
+ */
+function recently_read_exit($destination = NULL) {
+  global $user;
+
+//  drupal_bootstrap(DRUPAL_BOOTSTRAP_PATH);
+
   // track history for authenticated user
   if ((arg(0) == 'node') && is_numeric(arg(1)) && arg(2) == '') {
     $nid = arg(1);
 
     // get node type
-    $type = db_result(db_query('SELECT type FROM {node} WHERE nid = %d', $nid));
-    
+    $type = db_query('SELECT type FROM {node} WHERE nid = :nid', array(':nid' => $nid))->fetchField();
+
     // track history for authenticated user
     if (recently_read_is_enabled($type) && $user->uid) {
       $record = new stdClass();
       $record->nid = $nid;
       $record->type = $type;
       $record->uid = $user->uid;
-      $record->timestamp = time();
+      $record->timestamp = REQUEST_TIME;
 
-      $count = db_result(db_query(
-        'SELECT COUNT(*) FROM {recently_read_nodes} WHERE nid = %d AND uid = %d AND type = "%s"',
-        $nid, $user->uid, $type
-      ));
+      $count = db_query('SELECT COUNT(*) FROM {recently_read_nodes} WHERE nid = :nid AND uid = :uid AND type = :type',
+        array(':nid' => $nid, ':uid' => $user->uid, ':type' => $type)
+      )->fetchField();
       // A node has been viewed, so mark it as read
       if ($count > 0) {
         drupal_write_record('recently_read_nodes', $record, array('nid', 'uid'));
@@ -138,76 +162,77 @@ function recently_read_exit() {
         drupal_write_record('recently_read_nodes', $record);
       }
     }
-    
+
     // track history for anonymous user
     if (recently_read_is_enabled($type) && !$user->uid && variable_get('recently_read_anonymous_enabled', FALSE)) {
       $key = "recently_read-$type";
       if (!isset($_SESSION[$key])) {
         $_SESSION[$key] = array();
       }
-      
+
       // remove previous entry, if present
       unset($_SESSION[$key][$nid]);
-      
+
       // add new entry at the beginning of array
-      $title = db_result(db_query('SELECT title FROM {node} WHERE nid = %d', $nid));
+      $title = db_query('SELECT title FROM {node} WHERE nid = :nid', array(':nid' => $nid))->fetchField();
       $entry = array(
-        $nid => $title
+        $nid => $title,
       );
-      
+
       $_SESSION[$key] = $entry + $_SESSION[$key];
 
       while (count($_SESSION[$key]) > variable_get('recently_read_max_entries', 10)) {
         array_pop($_SESSION[$key]);
       }
     }
-    
+
   }
 
   // remove old entries
   // @todo - move to hook_cron
   $nids = array();
-  $result = db_query("SELECT nid FROM {recently_read_nodes} WHERE uid = %d and type = '%s' ORDER BY timestamp DESC LIMIT %d,1000",
-    $user->uid,
-    $type,
-    variable_get('recently_read_max_entries', 10)+1
-  );
-  while ($nid = db_result($result)) {
+  $first = variable_get('recently_read_max_entries', 10) + 1;
+  $result = db_query_range("SELECT nid FROM {recently_read_nodes}
+    WHERE uid = :uid ORDER BY timestamp DESC", $first, 1000, array(
+    ':uid' => $user->uid
+  ));
+  while ($nid = $result->fetchField()) {
     $nids[] = $nid;
-  };
+  }
   if (count($nids)) {
-    $placeholders = implode(',', array_fill(0, count($nids), "%d"));
-    db_query("DELETE FROM {recently_read_nodes} WHERE uid = %d AND nid IN($placeholders)",
-      array_merge((array) $user->uid, $nids)
-    );
+    db_query("DELETE FROM {recently_read_nodes} WHERE uid = :uid AND nid IN(:nids)", array(
+      ':uid' => $user->uid,
+      ':nids' => $nids
+    ));
   }
 
 }
 
-/*
+
+/**
  * Form builder; Configure recently read settings.
  */
-function recently_read_settings() {
-  $types = node_get_types();
+function recently_read_settings($form, &$form_state) {
+  $types = node_type_get_types();
 
   $options = array();
   foreach ($types as $key => $type) {
     $options[$key] = $type->name;
   }
-  
+
   $form['node_types'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Enable history tracking of the following content'),
     '#description' => t('Select which content types will be tracked.'),
-    '#default_value' => variable_get('recently_read_node_types', array('page', 'story')),
-    '#options' => $options
+    '#default_value' => variable_get('recently_read_node_types', array('page', 'article')),
+    '#options' => $options,
   );
 
   $form['anonymous_enabled'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable history tracking also for anonymous users'),
     '#description' => t('If disabled, login is required to view recently read block.'),
-    '#default_value' => variable_get('recently_read_anonymous_enabled', FALSE)
+    '#default_value' => variable_get('recently_read_anonymous_enabled', FALSE),
   );
 
   $form['max_entries'] = array(
@@ -215,12 +240,12 @@ function recently_read_settings() {
     '#title' => t('Recently read list length'),
     '#description' => 'Provide the maximum number of entires stored for each read content type (per user) in the database.',
     '#default_value' => variable_get('recently_read_max_entries', 10),
-    '#required' => TRUE
+    '#required' => TRUE,
   );
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save configuration')
+    '#value' => t('Save configuration'),
   );
 
   return $form;
@@ -251,11 +276,10 @@ function recently_read_settings_submit($form, &$form_state) {
 }
 
 
-/*
+/**
  * Function that checks if a specific node type history tracking has been enabled
  */
 function recently_read_is_enabled($node_type) {
-  $enabled_types = variable_get('recently_read_node_types', array('page', 'story'));
+  $enabled_types = variable_get('recently_read_node_types', array('page', 'article'));
   return in_array($node_type, $enabled_types);
 }
-
