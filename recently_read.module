@@ -3,6 +3,11 @@
  * @file
  * Recently read module file.
  * Displays a history of recently read nodes by currently logged in user.
+ *
+ *
+ * @todo: create recently_read_node_was_read($nid, $uid)
+ * @todo: remove current if on node page
+   @todo: truncate number of rr in the block to number of elements from block settings
  */
 
 
@@ -85,7 +90,12 @@ function recently_read_block($op = 'list', $delta = 0, $edit = array()) {
     case 'view':
       // view block containing links to recently visited nodes
       global $user;
-      $items = recently_read_get_read_items(array($delta), $user->uid);
+
+      $max_entries = variable_get('recently_read_max_entries', 10);
+      $max_count = variable_get('recently_read_max_length', array('page' => 10, 'story' => 10));
+      isset($max_count[$delta]) ? $limit = $max_count[$delta] : $limit = $max_entries;
+
+      $items = recently_read_get_read_items(array($delta), $user->uid, $limit);
       $types = node_get_types();
       return array(
         'subject' => t('Recently read - @type', array('@type' => $types[$delta]->name)),
@@ -196,7 +206,7 @@ function recently_read_settings() {
 
   $form['anonymous_enabled'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Enable history tracking for anonymous users (page caching is not supported)'),
+    '#title' => t('Enable history tracking for anonymous users'),
     '#description' => t('If disabled, user must be logged to view recently read blocks.'),
     '#default_value' => variable_get('recently_read_anonymous_enabled', FALSE)
   );
@@ -261,14 +271,21 @@ function recently_read_is_enabled($node_type) {
  * @param $user_id
  *   Id of a user whose list is returned.
  *
+ * @param $limit
+ *   Number of items to return (zero to return all)
+ *
  * @return
  *   An array of recently read items. Each item is an array.
  *   Properties of the item: nid, title, type, timestamp
  */
-function recently_read_get_read_items($node_types, $user_id) {
+function recently_read_get_read_items($node_types, $user_id, $limit = 0) {
   // normalize arguments
   if (!is_array($node_types)) {
     $node_types = array($node_types);
+  }
+
+  if ($limit == 0) {
+    $limit = variable_get('recently_read_max_entries', 10) * count($node_types);
   }
 
   // get history from _SESSION variable if anonymous
@@ -286,9 +303,6 @@ function recently_read_get_read_items($node_types, $user_id) {
   // get history from database if authenticated
   if ($user_id > 0) {
     // make a list of links to recently read nodes which are published
-    $max_entries = variable_get('recently_read_max_entries', 10);
-    $max_count = variable_get('recently_read_max_length', array('page' => 10, 'story' => 10));
-    $limit = isset($max_count[$node_type]) ? $max_count[$node_type] : $max_entries;
     $placeholders = db_placeholders($node_types, 'text');
 
     // prepare args for sql query
