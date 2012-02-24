@@ -298,6 +298,7 @@ function recently_read_get_read_items($node_types, $user_id, $limit = 0) {
       }
     }
     usort($items, '_recently_read_sort_fcn');
+    $items = array_slice($items, 0, $limit);
   }
 
   // get history from database if authenticated
