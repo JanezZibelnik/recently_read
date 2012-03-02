@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  * @file
@@ -20,17 +19,12 @@ function recently_read_menu() {
     'access arguments' => array('administer site configuration'),
     'type' => MENU_NORMAL_ITEM,
   );
-  $items['recently-read/ahah'] = array(
-    'page callback' => 'recently_read_ahah',
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
   return $items;
 }
 
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function recently_read_theme() {
   return array(
@@ -101,6 +95,9 @@ function recently_read_block_save($delta, $edit) {
  * Implements hook_block_view().
  */
 function recently_read_block_view($delta) {
+  // disable caching of entire page if recently read block is being displayed
+  recently_read_disable_page_cache();
+
   // view block containing links to recently visited nodes
   global $user;
 
@@ -336,8 +333,11 @@ function recently_read_get_read_items($node_types, $user_id, $limit = 0) {
 }
 
 
-function recently_read_ahah() {
-  drupal_json(time());
+/*
+ * Disables page caching. Call this function if you want to display recently read content (i.e. block).
+ */
+function recently_read_disable_page_cache() {
+  $GLOBALS['conf']['cache'] = FALSE;
 }
 
 
