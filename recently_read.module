@@ -5,6 +5,7 @@
  * Displays a history of recently read nodes by currently logged in user.
  *
  *
+ * @todo: create a function that deletes a history
  * @todo: create recently_read_node_was_read($nid, $uid)
  * @todo: remove current if on node page
    @todo: truncate number of rr in the block to number of elements from block settings
@@ -22,11 +23,6 @@ function recently_read_menu() {
     'page arguments' => array('recently_read_settings'),
     'access arguments' => array('administer site configuration'),
     'type' => MENU_NORMAL_ITEM,
-  );
-  $items['recently-read/ahah'] = array(
-    'page callback' => 'recently_read_ahah',
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
   );
   return $items;
 }
@@ -88,6 +84,9 @@ function recently_read_block($op = 'list', $delta = 0, $edit = array()) {
       return;
 
     case 'view':
+      // disable caching of entire page if recently read block is being displayed
+      recently_read_disable_page_cache();
+
       // view block containing links to recently visited nodes
       global $user;
 
@@ -328,8 +327,11 @@ function recently_read_get_read_items($node_types, $user_id, $limit = 0) {
 }
 
 
-function recently_read_ahah() {
-  drupal_json(time());
+/*
+ * Disables page caching. Call this function if you want to display recently read content (i.e. block).
+ */
+function recently_read_disable_page_cache() {
+  $GLOBALS['conf']['cache'] = FALSE;
 }
 
 
