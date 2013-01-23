@@ -22,6 +22,15 @@ function recently_read_menu() {
   return $items;
 }
 
+/**
+ * Implements of hook_views_api().
+ */
+function recently_read_views_api() {
+  return array(
+    'api' => 3.0,
+    'path' => drupal_get_path('module','recently_read') . '/includes',
+  );
+}
 
 /**
  * Implements hook_theme().
@@ -36,7 +45,6 @@ function recently_read_theme() {
     ),
   );
 }
-
 
 /**
  * Implements hook_block_info().
