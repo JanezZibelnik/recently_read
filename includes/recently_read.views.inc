@@ -16,36 +16,6 @@ function recently_read_views_data() {
       'field' => 'nid',
     )
   );
-  $data['recently_read_nodes']['nid'] = array(
-    'title' => t('Recently read nid'),
-    'field' => array(
-      'handler' => 'views_handler_field_numeric',
-      'click sortable' => TRUE,
-    ),
-    'relationship' => array(
-      'base' => 'node',
-      'base field' => 'nid',
-      'handler' => 'views_handler_relationship',
-      'label' => t('Label for nid'),
-      'title' => t('Node Title'),
-      'help' => t('Relationship to node'),
-    ),
-  );
-
-  $data['recently_read_nodes']['type'] = array(
-    'title' => t('Node type'),
-    'help' => t('node type'),
-    'field' => array(
-      'handler' => 'views_handler_field_node_type',
-      'click sortable' => TRUE,
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_node_type',
-    ),
-    'sort' => array(
-      'handler' => 'views_handler_sort'
-    ),
-  );
 
   $data['recently_read_nodes']['uid'] = array(
     'title' => t('Recently Read uid'),
@@ -61,7 +31,7 @@ function recently_read_views_data() {
       'base' => 'users',
       'base field' => 'uid',
       'handler' => 'views_handler_relationship',
-      'label' => t('Uid'),
+      'label' => t('Recently Read User'),
       'title' => t('Relationship uid'),
       'help' => t('Relationship to users'),
     ),
@@ -72,7 +42,7 @@ function recently_read_views_data() {
     'title' => t('Current'),
     'help' => t('Filter the view to the currently logged in user.'),
     'filter' => array(
-      'handler' => 'views_handler_filter_user_current',
+      'handler' => 'views_handler_filter_rr_user',
       'type' => 'yes-no',
     ),
   );
@@ -101,6 +71,9 @@ function recently_read_views_data_alter(&$data) {
   $data['node']['rid'] = array(
     'title' => t('Recently Read'),
     'help' => t('Recently Read Relationship'),
+    'filter' => array(
+      'handler' => 'views_handler_filter_rr_nid',
+    ),
     'relationship' => array(
       'group' => 'Recently Read',
       'label' => t('Recently Read'),

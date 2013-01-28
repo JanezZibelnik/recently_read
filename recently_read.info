@@ -7,3 +7,4 @@ configure = admin/config/system/recently-read
 files[] = recently_read.install
 files[] = recently_read.module
 files[] = includes/recently_read.views.inc
+files[] = includes/views_handler_filter_rr_user.inc
