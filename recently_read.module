@@ -399,3 +399,18 @@ function _recently_read_sort_fcn($a, $b) {
   if ($delta < 0) return -1;
   return 0;
 }
+
+function recently_read_views_plugins_alter($plg) {
+  //dsm($plg);
+}
+function recently_read_views_plugins() {
+  $plugins['argument default']['rr'] = array(
+    'title' => t('Recently Read'),
+    'handler' => 'views_plugin_argument_rr',
+    'module' => 'recently_read',
+    'file' => 'views_plugin_argument_rr.inc',
+    'parent' => 'fixed',
+    'name' => 'rr',
+  );
+  return $plugins;
+}
