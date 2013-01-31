@@ -15,7 +15,7 @@ class views_handler_filter_rr_user extends views_handler_filter_boolean_operator
     parent::construct();
     $this->value_value = t('Is the logged in user');
   }
-
+  /**
   function pre_query(){
     parent::pre_query();
     //dsm($this->view,'view');
@@ -59,8 +59,13 @@ class views_handler_filter_rr_user extends views_handler_filter_boolean_operator
       $this->view->argument['nid'] =  $argument;
     }
   }  
+  **/
 
   function query() {
+    global $user;
+    if (!$user->uid) {
+      return FALSE;
+    }
     $this->ensure_my_table();
 
     $field = $this->table_alias . '.' . $this->real_field . ' ';

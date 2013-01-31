@@ -8,4 +8,4 @@ files[] = recently_read.install
 files[] = recently_read.module
 files[] = includes/recently_read.views.inc
 files[] = includes/views_handler_filter_rr_user.inc
-files[] = views_plugin_argument_rr.inc
+files[] = includes/views_plugin_argument_rr.inc
