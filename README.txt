@@ -1,16 +1,12 @@
 // $Id$
 
-
 == SUMMARY ==
 
-
-The Recently Read module displays the history of recently read content (nodes) 
+The Recently Read module displays the history of recently read Entity
 a particular user has viewed. Each authenticated user has its own history 
 recorded, so this module may be useful i.e. for displaying recently viewed 
 products on the e-commerce site. The history is displayed as a block and each 
 content type gets its own block.
-
-Currently, Recently Read does not track history for anonymous users.
 
 If you need more flexibility, this module can be replaced by properly configured
 Flag, Rules and Views modules. Check out the following links for more details:
@@ -32,65 +28,31 @@ None.
 == INSTALLATION ==
 
 * Install as usual, see http://drupal.org/node/70151 for further information.
+* Module depend on module views, entity, session_api. Pls download it accordingly.
+  http://drupal.org/project/views
+  http://drupal.org/project/entity
+  http://drupal.org/project/session_api
 
 
 == CONFIGURATION ==
 
-* Customize the module settings in Administer >> Site configuration >> 
-  Recently read content. On this pace you can:
+  Just an example for recently viewed nodes. Actually, all the recently read entity can support.
+  1: Add a new views based on node(content).
+  2: set a relationship "Recently Read".
+  3: Add filter:
+     (Recently Read) Recently Read: Current (Yes)
+     (Recently Read) Recently Read: entity type (= Node)
+  4: Add sort:
+     (Recently Read) Recently Read: Recently Read Date (desc)
+  5: Maybe you can create a views block. and in block configuration page, you can place this block
+  where you want. 
+     Or you can use context module, to make a better block visibility config.
 
-  - Select which content types will should be tracked by the module
-
-    After enabling content type tracking, go to Administer >> Site building >>
-    Blocks to configure the block settings of each tracked content type.
-
-  - Recently read list length specifies the maximum number of nodes 
-    per user per content type that will be stored in a databse. Note that this
-    is different from "Maximum number of links to display in the block" setting
-    available in the Recently read block configutation options.
-
-
-== CUSTOMIZATION ==
-
-Recently read module lacks UI for advanced configuration, but most tasks can
-be easily implemented by code snippets or in the theme layer.
-
-* Displaying more than a node title
-
-  By default, Recently Read block displays a list of links to node titles.
-  You can customize the output by overriding theme_recently_read_item() and
-  theme_recently_read_item_list() functions in your theme.
-  
-  For example, to display an image field and a link:
-  
-  function mytheme_recently_read_item($variables) {
-    $item = $variables['item'];
-    $node = node_load($item['nid']);
-    if ($node->type=='article') {
-      $image = field_view_field('node', $node, 'field_image', 'default');
-    }
-    return l($item['title'], 'node/' . $item['nid']) . render($image);
-  }
-
-* Multiple content types in the same block
-
-  To display multiple content types in the same block, create a new block with PHP body
-  and modify the following examlpe to your needs:
-
-  <?php
-  // disable page caching if this block is displayed
-  recently_read_disable_page_cache();
-  // get 3 recently read pages and articles items for current user
-  // (you can skip the last argument to display all items)
-  global $user;
-  user_is_logged_in() ? $user_id = $user->uid : $user_id = 0;
-  $items = recently_read_get_read_items(array('page', 'article'), $user_id, 3);
-  // get html string with all items
-  return theme('recently_read_item_list', array('items' => $items));
-  ?>
+  If you use this module in your commerce site, you can create recently read orders based on this tutorial.
 
 
 == CONTACT ==
 
 Current maintainer:
 * Przemyslaw Gorecki (pgorecki) - http://drupal.org/user/642012
+* Terry Zhang (zterry95) - http://drupal.org/user/1952394
