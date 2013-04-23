@@ -6,13 +6,12 @@
  * Displays a history of recently read nodes by currently logged in user.
  */
 
-
 /**
  * Implements hook_menu().
  */
 function recently_read_menu() {
   $items['admin/config/system/recently-read'] = array(
-    'title' => 'Recently read content',
+    'title' => 'Recently Read Config',
     'description' => 'Tracks the history of recently read content by each user.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('recently_read_settings'),
@@ -37,88 +36,97 @@ function recently_read_views_api() {
  */
 function recently_read_entity_view($entity, $type, $view_mode, $langcode) {
   $info = entity_get_info();
-  /*
-  dsm($info);
-  dsm($type);
-  dsm($entity);
-  dsm($entity->{$info[$type]['entity keys']['id']});
-   */
-  if ($view_mode == 'full') {
-    $status = db_merge('recently_read')
-      ->key(array('sid' => session_api_get_sid(),'entity_id' => $entity->{$info[$type]['entity keys']['id']},'type' => $type))
-      ->fields(array(
-        'type' => $type,
-        'language' => $langcode,
-        'timestamp' => REQUEST_TIME,
-      ))
-      ->execute();
+  $config = variable_get('rr_config', array());
+  //get enabled entities.
+  foreach ($config as $k => $v) {
+    if ($v['enable']) {
+      $enable_entities[] = $k;
+    }
+  }
+
+  if (in_array($type, $enable_entities) && in_array($view_mode, $config[$type]['view_mode'])) {
+    //get the currently record count.
+    $count = db_select('recently_read')
+              ->fields('recently_read')
+              ->condition('type', $type, '=')
+              ->condition('sid', session_api_get_sid(), '=')
+              ->condition('language', $langcode , '=')
+              ->execute()
+              ->rowCount();
+    if ($count < $config[$type]['max_record']) {
+      $status = db_merge('recently_read')
+                  ->key(array('sid' => session_api_get_sid(),'entity_id' => $entity->{$info[$type]['entity keys']['id']},'type' => $type))
+                  ->fields(array(
+                    'type' => $type,
+                    'language' => $langcode,
+                      'timestamp' => REQUEST_TIME,
+                    ))
+                  ->execute();
+    }
   }
 }
-
 
 /**
  * Form builder; Configure recently read settings.
  */
 function recently_read_settings($form, &$form_state) {
-  $types = node_type_get_types();
+  $entities = entity_get_info();
+  $form['#tree'] = TRUE;
 
-  $options = array();
-  foreach ($types as $key => $type) {
-    $options[$key] = $type->name;
+  $form['rr_config'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Recently Read Config'),
+  );
+  $form['rr_config']['session_api_cfg'] = array(
+    '#markup' => t('First, goto !link to config the session api Cookie expire time.',array('!link' => l('Session Api','admin/config/development/session-api'))),
+  );
+  $config = variable_get('rr_config', array());
+  foreach ($entities as $entity_key => $entity) {
+    //dsm($entity,$entity_key);
+    $form['rr_config'][$entity_key] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Recently Read ' . $entity['label'] . ' config'),
+    );
+    $form['rr_config'][$entity_key]['enable'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable'),
+      '#default_value' => isset($config[$entity_key]['enable']) ? $config[$entity_key]['enable'] : FALSE, 
+    );
+    $form['rr_config'][$entity_key]['max_record'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Max Record for reacently Read @entity',array('@entity' => $entity['label'])),
+      '#default_value' => isset($config[$entity_key]['max_record']) ? $config[$entity_key]['max_record'] : 10, 
+    );
+    $form['rr_config'][$entity_key]['view_mode'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('View mode for track'),
+      '#default_value' => isset($config[$entity_key]['view_mode']) ? $config[$entity_key]['view_mode'] : array('full' => 'full'), 
+      '#options' => isset($entity['view modes']) ? drupal_map_assoc(array_keys($entity['view modes'])) : array(),
+    );
   }
 
-  $form['node_types'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Enable history tracking of the following content'),
-    '#description' => t('Select which content types will be tracked.'),
-    '#default_value' => variable_get('recently_read_node_types', array('page', 'article')),
-    '#options' => $options,
-  );
-
-  $form['anonymous_enabled'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable history tracking also for anonymous users'),
-    '#description' => t('If disabled, login is required to view recently read block.'),
-    '#default_value' => variable_get('recently_read_anonymous_enabled', FALSE),
-  );
-
-  $form['max_entries'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Recently read list length'),
-    '#description' => 'Provide the maximum number of entires stored for each read content type (per user) in the database.',
-    '#default_value' => variable_get('recently_read_max_entries', 10),
-    '#required' => TRUE,
-  );
-
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save configuration'),
-  );
-
-  return $form;
+  return system_settings_form($form);
 }
-
 
 function recently_read_settings_validate($form, &$form_state) {
-  $max = $form_state['values']['max_entries'];
-  if (!is_numeric($max) || $max < 1) {
-    form_set_error('max_entries', t('%field must be a positive integer value.',
-            array('%field' => $form['max_entries']['#title'])
-    ));
+  foreach ($form_state['values']['rr_config'] as $key => $config) {
+    if (!is_numeric($config['max_record']) || $config['max_record'] < 1) {
+      form_set_error('rr_config][' . $key . '][max_record', t('%field must be a positive integer value.', array('%field' => $key)));
+    }
   }
 }
 
-
 function recently_read_settings_submit($form, &$form_state) {
-  $selected = array();
-  foreach ($form_state['values']['node_types'] as $value) {
-    if ($value) {
-      $selected[] = $value;
-    }
-  }
-  variable_set('recently_read_node_types', $selected);
-  variable_set('recently_read_max_entries', $form_state['values']['max_entries']);
-  variable_set('recently_read_anonymous_enabled', $form_state['values']['anonymous_enabled']);
+  variable_set('rr_config', $form_state['values']['rr_config']);
   drupal_set_message(t('The configuration options have been saved.'));
 }
 
+/**
+ * Implement hook_session_api_cleanup.
+ * This hook is supplied by session_api module.
+ */
+function recently_read_session_api_cleanup ($outdated_sids) {
+  db_delete('recently_read')
+    ->condition('sid', $outdated_sids, 'IN')
+    ->execute();
+}
