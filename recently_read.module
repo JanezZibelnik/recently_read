@@ -81,12 +81,14 @@ function recently_read_settings($form, &$form_state) {
     '#type' => 'fieldset',
     '#title' => t('Recently Read Config'),
   );
+
   $form['rr_config']['session_api_cfg'] = array(
     '#markup' => t('First, goto !link to config the session api Cookie expire time.',array('!link' => l('Session Api','admin/config/development/session-api'))),
   );
+
   $config = variable_get('rr_config', array());
+
   foreach ($entities as $entity_key => $entity) {
-    //dsm($entity,$entity_key);
     $form['rr_config'][$entity_key] = array(
       '#type' => 'fieldset',
       '#title' => t('Recently Read ' . $entity['label'] . ' config'),
