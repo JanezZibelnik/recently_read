@@ -87,28 +87,33 @@ function recently_read_settings($form, &$form_state) {
   );
 
   $config = variable_get('rr_config', array());
+  if (empty($config)) {
+    $config['node']['enable'] = 1;
+  }
 
-  foreach ($entities as $entity_key => $entity) {
-    $form['rr_config'][$entity_key] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Recently Read ' . $entity['label'] . ' config'),
-    );
-    $form['rr_config'][$entity_key]['enable'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Enable'),
-      '#default_value' => isset($config[$entity_key]['enable']) ? $config[$entity_key]['enable'] : FALSE, 
-    );
-    $form['rr_config'][$entity_key]['max_record'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Max Record for reacently Read @entity',array('@entity' => $entity['label'])),
-      '#default_value' => isset($config[$entity_key]['max_record']) ? $config[$entity_key]['max_record'] : 10, 
-    );
-    $form['rr_config'][$entity_key]['view_mode'] = array(
-      '#type' => 'checkboxes',
-      '#title' => t('View mode for track'),
-      '#default_value' => isset($config[$entity_key]['view_mode']) ? $config[$entity_key]['view_mode'] : array('full' => 'full'), 
-      '#options' => isset($entity['view modes']) ? drupal_map_assoc(array_keys($entity['view modes'])) : array(),
-    );
+  foreach ($entities as $entity_type => $entity) {
+    if (entity_type_supports($entity_type, 'view')) {
+      $form['rr_config'][$entity_type] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Recently Read ' . $entity['label'] . ' config'),
+      );
+      $form['rr_config'][$entity_type]['enable'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Enable'),
+        '#default_value' => isset($config[$entity_type]['enable']) ? $config[$entity_type]['enable'] : FALSE, 
+      );
+      $form['rr_config'][$entity_type]['max_record'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Max Record for reacently Read @entity',array('@entity' => $entity['label'])),
+        '#default_value' => isset($config[$entity_type]['max_record']) ? $config[$entity_type]['max_record'] : 10, 
+      );
+      $form['rr_config'][$entity_type]['view_mode'] = array(
+        '#type' => 'checkboxes',
+        '#title' => t('View mode for track'),
+        '#default_value' => isset($config[$entity_type]['view_mode']) ? $config[$entity_type]['view_mode'] : array('full' => 'full'), 
+        '#options' => isset($entity['view modes']) ? drupal_map_assoc(array_keys($entity['view modes'])) : array(),
+      );
+    }
   }
 
   return system_settings_form($form);
