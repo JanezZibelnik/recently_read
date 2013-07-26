@@ -60,5 +60,5 @@ function recently_read_schema() {
  * Implements hook_uninstall().
  */
 function recently_read_uninstall() {
-
+  variable_del('rr_config');
 }
