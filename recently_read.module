@@ -44,7 +44,7 @@ function recently_read_entity_view($entity, $type, $view_mode, $langcode) {
     }
   }
 
-  if (!empty($enable_entities) && is_array($enable_entities) && in_array($type, $enable_entities) && in_array($view_mode, $config[$type]['view_mode'])) {
+  if (session_api_get_sid() && !empty($enable_entities) && is_array($enable_entities) && in_array($type, $enable_entities) && in_array($view_mode, $config[$type]['view_mode'])) {
     //get the currently record count.
     $count = db_select('recently_read')
               ->fields('recently_read')
