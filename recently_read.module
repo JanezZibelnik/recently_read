@@ -92,7 +92,7 @@ function recently_read_settings($form, &$form_state) {
   }
 
   foreach ($entities as $entity_type => $entity) {
-    if (entity_type_supports($entity_type, 'view')) {
+    if (!empty($entity['view modes']) && entity_type_supports($entity_type, 'view')) {
       $form['rr_config'][$entity_type] = array(
         '#type' => 'fieldset',
         '#title' => t('Recently Read ' . $entity['label'] . ' config'),
