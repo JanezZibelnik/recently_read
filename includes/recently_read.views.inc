@@ -76,15 +76,7 @@ function recently_read_views_data() {
   );
   return $data;
 }
-/**
- * Implements of hook_views_data_alter().
-function recently_read_views_pre_execute(&$view) {
-  //dsm($view);
-  dpq($view->build_info['query']);
-  dsm($_SESSION);
 
-}
- **/
 /**
  * Implements of hook_views_data_alter().
  **/
