@@ -44,29 +44,21 @@ function recently_read_entity_view($entity, $type, $view_mode, $langcode) {
     }
   }
 
-  if (session_api_get_sid() && !empty($enable_entities) && is_array($enable_entities) && in_array($type, $enable_entities) && in_array($view_mode, $config[$type]['view_mode'])) {
-    //get the currently record count.
-    $count = db_select('recently_read')
-              ->fields('recently_read')
-              ->condition('type', $type, '=')
-              ->condition('sid', session_api_get_sid(), '=')
-              ->condition('language', $langcode , '=')
-              ->execute()
-              ->rowCount();
-    if ($count < $config[$type]['max_record']) {
-      $status = db_merge('recently_read')
-                  ->key(array(
-                    'sid' => session_api_get_sid(),
-                    'entity_id' => $entity->{$info[$type]['entity keys']['id']},
-                    'type' => $type
-                  ))
-                  ->fields(array(
-                    'type' => $type,
-                    'language' => $langcode,
-                    'timestamp' => REQUEST_TIME,
-                  ))
-                  ->execute();
-    }
+  //Write the record to DB.
+  //TODO::implements hook_cron to clean up the outdated data from the DB.
+  if (session_api_get_sid() && !empty($enable_entities) && is_array($enable_entities) && in_array($type, $enable_entities) && in_array($view_mode, array_filter($config[$type]['view_mode']))) {
+    db_merge('recently_read')
+      ->key(array(
+        'sid' => session_api_get_sid(),
+        'entity_id' => $entity->{$info[$type]['entity keys']['id']},
+        'type' => $type
+      ))
+      ->fields(array(
+        'type' => $type,
+        'language' => $langcode,
+        'timestamp' => REQUEST_TIME,
+      ))
+      ->execute();
   }
 }
 
