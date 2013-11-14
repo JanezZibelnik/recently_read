@@ -3,7 +3,7 @@
 /**
  * @file
  * Recently read module file.
- * Displays a history of recently read nodes by currently logged in user.
+ * Displays a history of recently read entities.
  */
 
 /**
@@ -12,7 +12,7 @@
 function recently_read_menu() {
   $items['admin/config/system/recently-read'] = array(
     'title' => 'Recently Read Config',
-    'description' => 'Tracks the history of recently read content by each user.',
+    'description' => 'Tracks the history of recently read entities by each user.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('recently_read_settings'),
     'access arguments' => array('administer site configuration'),
@@ -35,22 +35,25 @@ function recently_read_views_api() {
  * Implements hook_entity_view().
  */
 function recently_read_entity_view($entity, $type, $view_mode, $langcode) {
-  $info = entity_get_info();
   $config = variable_get('rr_config', array());
-  //get enabled entities.
-  foreach ($config as $k => $v) {
-    if ($v['enable']) {
-      $enable_entities[] = $k;
-    }
+  //If the entity is not config for recently read track...
+  if (!$config[$type]['enable']) {
+    return;
   }
+  //If the currently view mode is not support recently read track...
+  if (!in_array($view_mode, array_filter($config[$type]['view_mode']))) {
+    return;
+  }
+
+  list($entity_id, $vid, $bundle) = entity_extract_ids($type, $entity);
 
   //Write the record to DB.
   //TODO::implements hook_cron to clean up the outdated data from the DB.
-  if (session_api_get_sid() && !empty($enable_entities) && is_array($enable_entities) && in_array($type, $enable_entities) && in_array($view_mode, array_filter($config[$type]['view_mode']))) {
+  if (session_api_get_sid() && $entity_id) {
     db_merge('recently_read')
       ->key(array(
         'sid' => session_api_get_sid(),
-        'entity_id' => $entity->{$info[$type]['entity keys']['id']},
+        'entity_id' => $entity_id,
         'type' => $type
       ))
       ->fields(array(
@@ -79,9 +82,6 @@ function recently_read_settings($form, &$form_state) {
   );
 
   $config = variable_get('rr_config', array());
-  if (empty($config)) {
-    $config['node']['enable'] = 1;
-  }
 
   foreach ($entities as $entity_type => $entity) {
     if (!empty($entity['view modes']) && entity_type_supports($entity_type, 'view')) {
@@ -128,7 +128,7 @@ function recently_read_settings_submit($form, &$form_state) {
  * Implement hook_session_api_cleanup.
  * This hook is supplied by session_api module.
  */
-function recently_read_session_api_cleanup ($outdated_sids) {
+function recently_read_session_api_cleanup($outdated_sids) {
   db_delete('recently_read')
     ->condition('sid', $outdated_sids, 'IN')
     ->execute();
