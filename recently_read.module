@@ -37,7 +37,10 @@ function recently_read_views_api() {
 function recently_read_entity_view($entity, $type, $view_mode, $langcode) {
   $config = variable_get('rr_config', array());
   //If the entity is not config for recently read track...
-  if (!isset($config[$type]) || !$config[$type]['enable']) {
+  if (!isset($config[$type])) {
+    return;
+  }
+  if (isset($config[$type]) && !$config[$type]['enable']) {
     return;
   }
   //If the currently view mode is not support recently read track...
