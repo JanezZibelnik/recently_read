@@ -102,7 +102,7 @@ function recently_read_settings($form, &$form_state) {
       );
       $form['rr_config'][$entity_type]['max_record'] = array(
         '#type' => 'textfield',
-        '#title' => t('Max Record for reacently Read @entity',array('@entity' => $entity['label'])),
+        '#title' => t('Max Record for Recently Read @entity',array('@entity' => $entity['label'])),
         '#default_value' => isset($config[$entity_type]['max_record']) ? $config[$entity_type]['max_record'] : 10, 
       );
       $form['rr_config'][$entity_type]['view_mode'] = array(
