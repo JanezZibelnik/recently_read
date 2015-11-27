@@ -1,0 +1,10 @@
+name: 'Recently read'
+type: module
+description: 'Tracks the history of recently read content by each user.'
+package: Other
+core = 8.x
+version: VERSION
+configure: recently_read.settings
+dependencies[]: views
+dependencies[]: entity
+dependencies[]: session_api

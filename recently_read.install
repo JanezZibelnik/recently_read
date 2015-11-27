@@ -54,26 +54,3 @@ function recently_read_schema() {
   );
   return $schema;
 }
-
-
-/**
- * Implements hook_install().
- */
-function recently_read_install() {
-  $default = array(
-    'node' => array(
-      'enable' => 1,
-      'max_record' => 10,
-      'view_mode' => array(
-        'full' => 'full',
-      ),
-    ),
-  );
-  variable_set('rr_config', $default);
-}
-/**
- * Implements hook_uninstall().
- */
-function recently_read_uninstall() {
-  variable_del('rr_config');
-}
