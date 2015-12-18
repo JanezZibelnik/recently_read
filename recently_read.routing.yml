@@ -1,7 +1,7 @@
-recently.settings
-  path: '/admin/congif/recently-read'
+recently_read.settings:
+  path: '/admin/config/recently-read'
   defaults:
-    _controller: '\Drupal\recently_read\Form\RecentlyReadConfigForm'
+    _form: '\Drupal\recently_read\Form\SettingsForm'
     _title: 'Recently Read Config'
   requirements:
     _permission: 'admin recently read'
