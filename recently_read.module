@@ -35,9 +35,16 @@ function recently_read_views_api() {
  * Implements hook_entity_view().
  */
 function recently_read_entity_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
+  dump($view_mode);
+  return;
+  //dsm($view_mode);return;
+  dsm($display);return;
+  $entity_type = $entity->getEntityType();
+  dsm($entity_type);
+  return;
   $config = &drupal_static(__FUNCTION__);
   if (!isset($config)) {
-    $config = variable_get('rr_config', array());
+    $config = \Drupal::config('recently_read.settings')->get();
   }
   //If the entity is not config for recently read track...
   if (!isset($config[$type])) {

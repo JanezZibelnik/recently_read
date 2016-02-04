@@ -37,7 +37,7 @@ class SettingsForm extends ConfigFormBase {
 
     $config = $this->config('recently_read.settings');
 
-    $types = $this->entityManager()->getEntityTypeLabels();
+    //$types = $this->entityManager()->getEntityTypeLabels();
     ksort($types);
     $entity_info = array();
     foreach (array_keys($types) as $type) {
