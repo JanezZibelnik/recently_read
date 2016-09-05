@@ -70,6 +70,16 @@ function recently_read_entity_view($entity, $type, $view_mode, $langcode) {
       ->execute();
   }
 }
+/**
+ * Implements hook_entity_delete().
+ */
+function recently_read_entity_delete($entity, $type) {
+  list($id) = entity_extract_ids($type, $entity);
+  db_delete('recently_read')
+    ->condition('type', $type)
+    ->condition('entity_id', $id)
+    ->execute();
+}
 
 /**
  * Form builder; Configure recently read settings.
