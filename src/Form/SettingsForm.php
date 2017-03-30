@@ -90,14 +90,6 @@ class SettingsForm extends ConfigFormBase {
       '#title' => t('Recently Read Config'),
     );
 
-    $settigns_link = Link::createFromRoute('Session Api', 'recently_read.settings');
-    $form['recently_read_config']['session_api_cfg'] = array(
-      '#markup' => t('First, goto <a href=":url">@text</a> to config the session api Cookie expire time.', [
-        ':url' => $settigns_link->getUrl(),
-        '@text' => $settigns_link->getText()
-      ]),
-    );
-
     $all_view_modes = $this->entityDisplayRepository->getAllViewModes();
     $labels = $this->entityTypeRepository->getEntityTypeLabels();
     ksort($all_view_modes);
