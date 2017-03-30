@@ -20,7 +20,7 @@ class recently_read_handler_filter_current extends views_handler_filter_boolean_
     $this->ensure_my_table();
 
     $field = $this->table_alias . '.' . $this->real_field . ' ';
-    $or = db_or();
+    $or = new \Drupal\Core\Database\Query\Condition('OR');
 
     if (empty($this->value)) {
       $or->condition($field, '***CURRENT_SESSION***', '<>');

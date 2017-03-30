@@ -4,17 +4,62 @@
  */
 namespace Drupal\recently_read\Form;
 
-use Druapl\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeRepositoryInterface;
+use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Url;
+use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provices the recently read config form.
  */
 class SettingsForm extends ConfigFormBase {
+
+  /**
+   * The entity type repository.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeRepositoryInterface
+   */
+  protected $entityTypeRepository;
+
+  /**
+   * The entity display repository.
+   *
+   * @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface
+   */
+  protected $entityDisplayRepository;
+
+  /**
+   * Constructs a \Drupal\recently_read\Form\SettingsForm object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Drupal\Core\Entity\EntityTypeRepositoryInterface $entity_type_repository
+   *   The entity type repository.
+   * @param \Drupal\Core\Entity\EntityDisplayRepositoryInterface $entity_display_repository
+   *   The entity display repository.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeRepositoryInterface $entity_type_repository, EntityDisplayRepositoryInterface $entity_display_repository) {
+    parent::__construct($config_factory);
+
+    $this->entityTypeRepository = $entity_type_repository;
+    $this->entityDisplayRepository = $entity_display_repository;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('entity_type.repository'),
+      $container->get('entity_display.repository')
+    );
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -45,13 +90,16 @@ class SettingsForm extends ConfigFormBase {
       '#title' => t('Recently Read Config'),
     );
 
-    $url = Url::fromRoute('recently_read.settings');
+    $settigns_link = Link::createFromRoute('Session Api', 'recently_read.settings');
     $form['recently_read_config']['session_api_cfg'] = array(
-      '#markup' => t('First, goto !link to config the session api Cookie expire time.',array('!link' => \Drupal::l('Session Api',$url))),
+      '#markup' => t('First, goto <a href=":url">@text</a> to config the session api Cookie expire time.', [
+        ':url' => $settigns_link->getUrl(),
+        '@text' => $settigns_link->getText()
+      ]),
     );
 
-    $all_view_modes = \Drupal::entityManager()->getAllViewModes();
-    $labels = \Drupal::entityManager()->getEntityTypeLabels();
+    $all_view_modes = $this->entityDisplayRepository->getAllViewModes();
+    $labels = $this->entityTypeRepository->getEntityTypeLabels();
     ksort($all_view_modes);
     foreach ($all_view_modes as $entity_type => $view_mode) {
       $form['recently_read_config'][$entity_type] = array(

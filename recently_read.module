@@ -62,7 +62,8 @@ function recently_read_entity_view(array &$build, \Drupal\Core\Entity\EntityInte
   $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
   $sid = \Drupal::currentUser()->id();
   if ($entity_id = $entity->Id()) {
-    db_merge('recently_read')
+    \Drupal\Core\Database\Database::getConnection()
+      ->merge('recently_read')
       ->key(array(
         'sid' => $sid,
         'entity_id' => $entity_id,
