@@ -1,2 +1,36 @@
 <?php
 
+
+/**
+ * Implements hook_theme().
+ */
+function recently_read_theme() {
+  $theme = [];
+  $theme['recently_read'] = [
+    'render element' => 'elements',
+    'file' => 'recently_read.page.inc',
+    'template' => 'recently_read',
+  ];
+  $theme['recently_read_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'recently_read.page.inc',
+  ];
+  return $theme;
+}
+
+/**
+* Implements hook_theme_suggestions_HOOK().
+*/
+function recently_read_theme_suggestions_recently_read(array $variables) {
+  $suggestions = [];
+  $entity = $variables['elements']['#recently_read'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'recently_read__' . $sanitized_view_mode;
+  $suggestions[] = 'recently_read__' . $entity->bundle();
+  $suggestions[] = 'recently_read__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'recently_read__' . $entity->id();
+  $suggestions[] = 'recently_read__' . $entity->id() . '__' . $sanitized_view_mode;
+  return $suggestions;
+}

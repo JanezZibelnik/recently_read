@@ -1,0 +1,19 @@
+add recently read entities:
+  title: 'Create new Recently read entities'
+
+administer recently read entities:
+  title: 'Administer Recently read entities'
+  description: 'Allow to access the administration form to configure Recently read entities.'
+  restrict access: true
+
+delete recently read entities:
+  title: 'Delete Recently read entities'
+
+edit recently read entities:
+  title: 'Edit Recently read entities'
+
+view published recently read entities:
+  title: 'View published Recently read entities'
+
+view unpublished recently read entities:
+  title: 'View unpublished Recently read entities'

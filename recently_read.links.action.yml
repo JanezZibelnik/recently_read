@@ -1,0 +1,11 @@
+entity.recently_read.add_form:
+  route_name: entity.recently_read.add_page
+  title: 'Add Recently read'
+  appears_on:
+    - entity.recently_read.collection
+entity.recently_read_type.add_form:
+  route_name: entity.recently_read_type.add_form
+  title: 'Add Recently read type'
+  appears_on:
+    - entity.recently_read_type.collection
+
