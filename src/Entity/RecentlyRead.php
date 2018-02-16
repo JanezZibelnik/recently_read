@@ -39,7 +39,6 @@ use Drupal\user\UserInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "bundle" = "type",
- *     "label" = "name",
  *     "uuid" = "uuid",
  *     "uid" = "user_id",
  *     "langcode" = "langcode",
@@ -104,6 +103,36 @@ class RecentlyRead extends ContentEntityBase implements RecentlyReadInterface {
   /**
    * {@inheritdoc}
    */
+  public function getEntityId() {
+    return $this->get('entity_id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setEnitityId($entityId) {
+    $this->set('entity_id', $entityId);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSessionId() {
+    return $this->get('session_id')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setSessionId($sessionId) {
+    $this->set('session_id', $sessionId);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getOwner() {
     return $this->get('user_id')->entity;
   }
@@ -131,20 +160,6 @@ class RecentlyRead extends ContentEntityBase implements RecentlyReadInterface {
     return $this;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function isPublished() {
-    return (bool) $this->getEntityKey('status');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setPublished($published) {
-    $this->set('status', $published ? TRUE : FALSE);
-    return $this;
-  }
 
   /**
    * {@inheritdoc}
@@ -177,38 +192,18 @@ class RecentlyRead extends ContentEntityBase implements RecentlyReadInterface {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['name'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Name'))
-      ->setDescription(t('The name of the Recently read entity.'))
-      ->setSettings([
-        'max_length' => 50,
-        'text_processing' => 0,
-      ])
-      ->setDefaultValue('')
-      ->setDisplayOptions('view', [
-        'label' => 'above',
-        'type' => 'string',
-        'weight' => -4,
-      ])
-      ->setDisplayOptions('form', [
-        'type' => 'string_textfield',
-        'weight' => -4,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
+    $fields['entity_id'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Entity ID'))
+      ->setRequired(TRUE)
+      ->setDescription(t('The Entity ID.'));
 
-    $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Publishing status'))
-      ->setDescription(t('A boolean indicating whether the Recently read is published.'))
-      ->setDefaultValue(TRUE);
+    $fields['session_id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Session ID'))
+      ->setDescription(t('The session ID associated with an anonymous user.'));
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
       ->setDescription(t('The time that the entity was created.'));
-
-    $fields['changed'] = BaseFieldDefinition::create('changed')
-      ->setLabel(t('Changed'))
-      ->setDescription(t('The time that the entity was last edited.'));
 
     return $fields;
   }

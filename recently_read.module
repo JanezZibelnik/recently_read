@@ -1,5 +1,8 @@
 <?php
 
+use Drupal\recently_read\Entity\RecentlyReadType;
+use Drupal\recently_read\Entity\RecentlyRead;
+
 
 /**
  * Implements hook_theme().
@@ -33,4 +36,46 @@ function recently_read_theme_suggestions_recently_read(array $variables) {
   $suggestions[] = 'recently_read__' . $entity->id();
   $suggestions[] = 'recently_read__' . $entity->id() . '__' . $sanitized_view_mode;
   return $suggestions;
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function recently_read_entity_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
+  $entityType = $entity->getEntityType();
+  $typeManager = \Drupal::entityTypeManager();
+
+  if($entityType->id() === 'node' && $view_mode === 'full') {
+    $readTypeConfig = RecentlyReadType::load('node');
+    $allowedTypes = $readTypeConfig->getTypes();
+
+    if(in_array($entity->bundle(), $allowedTypes)) {
+      // Check existing
+      $exists = $typeManager->getStorage('recently_read')->loadByProperties([
+        'user_id' => \Drupal::currentUser()->id(),
+        'entity_id' => $entity->id(),
+      ]);
+
+      // If exists then update created else create new.
+      if(!empty($exists)) {
+        foreach ($exists as $entry) {
+          $entry->setCreatedTime(time())->save();
+        }
+      }
+      else {
+        // Create new
+        $recentlyRead = RecentlyRead::create([
+          'type' => 'node',
+          'user_id' => \Drupal::currentUser()->id(),
+          'entity_id' => $entity->id(),
+          'session_id' => 0,
+          'created' => time(),
+        ]);
+        $recentlyRead->save();
+      }
+
+    }
+
+  }
+
 }

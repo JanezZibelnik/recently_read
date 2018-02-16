@@ -10,3 +10,11 @@ recently_read.recently_read_type.*:
       label: 'Label'
     uuid:
       type: string
+    enabled:
+      label: 'Enabled'
+      type: boolean
+    types:
+      type: sequence
+      label: 'Types'
+      sequence:
+        - type: string

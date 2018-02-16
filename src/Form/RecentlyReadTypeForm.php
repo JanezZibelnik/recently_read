@@ -4,6 +4,9 @@ namespace Drupal\recently_read\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\ContentEntityType;
+use Drupal\recently_read\Entity\RecentlyReadType;
+
 
 /**
  * Class RecentlyReadTypeForm.
@@ -16,26 +19,55 @@ class RecentlyReadTypeForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
-    $recently_read_type = $this->entity;
+    $entity = $this->entity;
+
+    $readTypeConfig = RecentlyReadType::load('node');
+
+    $t = $readTypeConfig->getTypes();
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
-      '#default_value' => $recently_read_type->label(),
-      '#description' => $this->t("Label for the Recently read type."),
+      '#default_value' => $entity->label(),
+      '#description' => $this->t("Label for the Recommendation type."),
       '#required' => TRUE,
     ];
 
     $form['id'] = [
       '#type' => 'machine_name',
-      '#default_value' => $recently_read_type->id(),
+      '#default_value' => $entity->id(),
       '#machine_name' => [
         'exists' => '\Drupal\recently_read\Entity\RecentlyReadType::load',
       ],
-      '#disabled' => !$recently_read_type->isNew(),
+      '#disabled' => !$entity->isNew(),
     ];
 
-    /* You will need additional form elements for your custom properties. */
+
+    $types = \Drupal::entityTypeManager()
+      ->getStorage('node_type')
+      ->loadMultiple();
+
+    $form['enabled']= [
+      '#type' => 'checkbox',
+      '#title' => $this->t("Enabled"),
+    ];
+
+    $types = \Drupal::entityTypeManager()
+      ->getStorage('node_type')
+      ->loadMultiple();
+
+    $options = [];
+    foreach($types as $typeId => $type) {
+      $options[$typeId] = $type->label();
+    }
+
+    $form['types'] = [
+      '#type' => 'checkboxes',
+      '#options' => $options,
+      '#title' => $this->t('Types to be inserted on view'),
+    ];
+
+    $form['#cache']['max-age'] = 0;
 
     return $form;
   }

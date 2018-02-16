@@ -53,6 +53,27 @@ class RecentlyReadType extends ConfigEntityBundleBase implements RecentlyReadTyp
    *
    * @var string
    */
-  protected $label;
+  protected $label = '';
+
+  /**
+   * The Recently read type enabled.
+   *
+   * @var bool
+   */
+  protected $enabled = FALSE;
+
+  /**
+   * The Recently read types.
+   *
+   * @var array
+   */
+  protected $types = [];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTypes() {
+    return array_filter($this->get('types'));
+  }
 
 }
