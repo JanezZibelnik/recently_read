@@ -81,7 +81,7 @@ function insert_entity($entity) {
       'type' => $entity->getEntityTypeId(),
       'user_id' => $user_id,
       'entity_id' => $entity->id(),
-      'session_id' => $session,
+      'session_id' => $user_id ? 0 : session_id(),
       'created' => time(),
     ]);
     $recentlyRead->save();
