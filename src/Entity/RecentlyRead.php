@@ -17,11 +17,11 @@ use Drupal\user\UserInterface;
  * @ContentEntityType(
  *   id = "recently_read",
  *   label = @Translation("Recently read"),
- *   bundle_label = @Translation("Recently read type"),
+ *   bundle_label = @Translation("Recently read config"),
+ *   fieldable = FALSE,
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "views_data" = "Drupal\recently_read\Entity\RecentlyReadViewsData",
- *     "access" = "Drupal\recently_read\RecentlyReadAccessControlHandler",
  *     "route_provider" = {
  *       "html" = "Drupal\recently_read\RecentlyReadHtmlRouteProvider",
  *     },
@@ -37,7 +37,6 @@ use Drupal\user\UserInterface;
  *     "status" = "status",
  *   },
  *   bundle_entity_type = "recently_read_type",
- *   field_ui_base_route = "entity.recently_read_type.edit_form"
  * )
  */
 class RecentlyRead extends ContentEntityBase implements RecentlyReadInterface {

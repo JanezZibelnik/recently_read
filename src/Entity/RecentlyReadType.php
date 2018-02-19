@@ -9,14 +9,12 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *
  * @ConfigEntityType(
  *   id = "recently_read_type",
- *   label = @Translation("Recently read type"),
+ *   label = @Translation("Recently read config"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\recently_read\RecentlyReadTypeListBuilder",
  *     "form" = {
- *       "add" = "Drupal\recently_read\Form\RecentlyReadTypeForm",
  *       "edit" = "Drupal\recently_read\Form\RecentlyReadTypeForm",
- *       "delete" = "Drupal\recently_read\Form\RecentlyReadTypeDeleteForm"
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\recently_read\RecentlyReadTypeHtmlRouteProvider",
@@ -32,9 +30,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *   },
  *   links = {
  *     "canonical" = "/admin/config/system/recently_read_type/{recently_read_type}",
- *     "add-form" = "/admin/config/system/recently_read_type/add",
  *     "edit-form" = "/admin/config/system/recently_read_type/{recently_read_type}/edit",
- *     "delete-form" = "/admin/config/system/recently_read_type/{recently_read_type}/delete",
  *     "collection" = "/admin/config/system/recently_read_type"
  *   }
  * )
