@@ -1,18 +1,8 @@
-
-# Recently read menu items definition
-entity.recently_read.collection:
-  title: 'Recently read list'
-  route_name: entity.recently_read.collection
-  description: 'List Recently read entities'
-  parent: system.admin_structure
-  weight: 100
-
-
 # Recently read type menu items definition
 entity.recently_read_type.collection:
-  title: 'Recently read type'
+  title: 'Recently read config'
   route_name: entity.recently_read_type.collection
-  description: 'List Recently read type (bundles)'
-  parent: system.admin_structure
+  description: 'Tracks the history of recently read entities by each user.'
+  parent: system.admin_config_system
   weight: 99
 

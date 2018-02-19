@@ -4,14 +4,38 @@ namespace Drupal\recently_read\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Entity\ContentEntityType;
-use Drupal\recently_read\Entity\RecentlyReadType;
-
+use Drupal\taxonomy\Entity\Vocabulary;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Routing\CurrentRouteMatch;
+use Drupal\Core\Entity\EntityTypeManager;
 
 /**
  * Class RecentlyReadTypeForm.
  */
 class RecentlyReadTypeForm extends EntityForm {
+
+  protected $routeMatch;
+  protected $entityTypeManager;
+
+  /**
+   * RecentlyReadTypeForm constructor.
+   */
+  public function __construct(CurrentRouteMatch $routeMatch, EntityTypeManager $entityTypeManager) {
+    $this->routeMatch = $routeMatch;
+    $this->entityTypeManager = $entityTypeManager;
+  }
+
+  /**
+   * RecentlyReadTypeForm create function.
+   */
+  public static function create(ContainerInterface $container) {
+    // Instantiates this form class.
+    return new static(
+    // Load the service required to construct this class.
+      $container->get('current_route_match'),
+      $container->get('entity_type.manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -20,17 +44,21 @@ class RecentlyReadTypeForm extends EntityForm {
     $form = parent::form($form, $form_state);
 
     $entity = $this->entity;
-
-    $readTypeConfig = RecentlyReadType::load('node');
-
-    $t = $readTypeConfig->getTypes();
+    $route_parameters = $this->routeMatch->getParameters();
+    $route_name = $route_parameters->get('recently_read_type')->id();
+    if ($route_name == "node") {
+      $types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
+    }
+    if ($route_name == "taxonomy") {
+      $types = Vocabulary::loadMultiple();
+    }
     $form['label'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Label'),
+      '#title' => $this->t('Config name'),
       '#maxlength' => 255,
       '#default_value' => $entity->label(),
-      '#description' => $this->t("Label for the Recommendation type."),
       '#required' => TRUE,
+      '#disabled' => TRUE,
     ];
 
     $form['id'] = [
@@ -42,32 +70,25 @@ class RecentlyReadTypeForm extends EntityForm {
       '#disabled' => !$entity->isNew(),
     ];
 
-
-    $types = \Drupal::entityTypeManager()
-      ->getStorage('node_type')
-      ->loadMultiple();
-
-    $form['enabled']= [
+    $form['enabled'] = [
       '#type' => 'checkbox',
+      '#default_value' => $entity->get('enabled'),
       '#title' => $this->t("Enabled"),
     ];
 
-    $types = \Drupal::entityTypeManager()
-      ->getStorage('node_type')
-      ->loadMultiple();
-
     $options = [];
-    foreach($types as $typeId => $type) {
+    foreach ($types as $typeId => $type) {
       $options[$typeId] = $type->label();
     }
 
-    $form['types'] = [
-      '#type' => 'checkboxes',
-      '#options' => $options,
-      '#title' => $this->t('Types to be inserted on view'),
-    ];
-
-    $form['#cache']['max-age'] = 0;
+    if (count($options) > 0) {
+      $form['types'] = [
+        '#type' => 'checkboxes',
+        '#options' => $options,
+        '#default_value' => $entity->get('types'),
+        '#title' => $this->t('Track'),
+      ];
+    }
 
     return $form;
   }
@@ -81,13 +102,13 @@ class RecentlyReadTypeForm extends EntityForm {
 
     switch ($status) {
       case SAVED_NEW:
-        drupal_set_message($this->t('Created the %label Recently read type.', [
+        drupal_set_message($this->t('Created the %label recently read config.', [
           '%label' => $recently_read_type->label(),
         ]));
         break;
 
       default:
-        drupal_set_message($this->t('Saved the %label Recently read type.', [
+        drupal_set_message($this->t('Saved the recently read %label config.', [
           '%label' => $recently_read_type->label(),
         ]));
     }

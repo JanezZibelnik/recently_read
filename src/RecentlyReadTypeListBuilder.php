@@ -14,7 +14,7 @@ class RecentlyReadTypeListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header['label'] = $this->t('Recently read type');
+    $header['label'] = $this->t('Recently read config');
     $header['id'] = $this->t('Machine name');
     return $header + parent::buildHeader();
   }

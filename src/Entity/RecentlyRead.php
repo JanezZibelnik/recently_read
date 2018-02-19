@@ -20,15 +20,7 @@ use Drupal\user\UserInterface;
  *   bundle_label = @Translation("Recently read type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\recently_read\RecentlyReadListBuilder",
  *     "views_data" = "Drupal\recently_read\Entity\RecentlyReadViewsData",
- *
- *     "form" = {
- *       "default" = "Drupal\recently_read\Form\RecentlyReadForm",
- *       "add" = "Drupal\recently_read\Form\RecentlyReadForm",
- *       "edit" = "Drupal\recently_read\Form\RecentlyReadForm",
- *       "delete" = "Drupal\recently_read\Form\RecentlyReadDeleteForm",
- *     },
  *     "access" = "Drupal\recently_read\RecentlyReadAccessControlHandler",
  *     "route_provider" = {
  *       "html" = "Drupal\recently_read\RecentlyReadHtmlRouteProvider",
@@ -43,14 +35,6 @@ use Drupal\user\UserInterface;
  *     "uid" = "user_id",
  *     "langcode" = "langcode",
  *     "status" = "status",
- *   },
- *   links = {
- *     "canonical" = "/admin/structure/recently_read/{recently_read}",
- *     "add-page" = "/admin/structure/recently_read/add",
- *     "add-form" = "/admin/structure/recently_read/add/{recently_read_type}",
- *     "edit-form" = "/admin/structure/recently_read/{recently_read}/edit",
- *     "delete-form" = "/admin/structure/recently_read/{recently_read}/delete",
- *     "collection" = "/admin/structure/recently_read",
  *   },
  *   bundle_entity_type = "recently_read_type",
  *   field_ui_base_route = "entity.recently_read_type.edit_form"
