@@ -18,9 +18,11 @@
     $data['recently_read']['entity_link'] = array(
       'title' => t('Entity link'),
       'field' => array(
-        'title' => t('Recently read entity type flagger'),
+        'title' => t('Recently read entity link'),
         'help' => t('Links specific entity by type.'),
         'id' => 'recently_read_entity_link',
       ),
     );
+
+    ksm($data);
   }

@@ -30,46 +30,12 @@ class RecentlyReadEntityLink extends FieldPluginBase {
   }
 
   /**
-   * Define the available options
-   * @return array
-   */
-  protected function defineOptions() {
-    $options = parent::defineOptions();
-    $options['recently_read_type'] = array('default' => 'node');
-
-    return $options;
-  }
-
-  /**
-   * Provide the options form.
-   */
-  public function buildOptionsForm(&$form, FormStateInterface $form_state) {
-    $types =
-    $types = RecentlyReadType::loadMultiple();
-    $options = [];
-    foreach ($types as $key => $type) {
-      $options[$key] = $type->label();
-    }
-    $form['recently_read_type'] = [
-      '#title' => $this->t('What content type is being linked'),
-      '#type' => 'select',
-      '#default_value' => $this->options['recently_read_type'],
-      '#options' => $options,
-      '#multiple' => TRUE,
-    ];
-
-    parent::buildOptionsForm($form, $form_state);
-  }
-
-  /**
    * @{inheritdoc}
    */
   public function render(ResultRow $values) {
     $entity = $values->_entity;
-
-    $k = 1;
-    if ($entity->bundle() == $this->options['recently_read_type']) {
-      switch($this->options['recently_read_type']) {
+    if ($entity->bundle()) {
+      switch($entity->bundle()) {
         case 'comment':
           return Link::fromTextAndUrl(t(Comment::load($entity->get('entity_id')->getString())->label()), Url::fromUri('internal:/comment/'.$entity->get('entity_id')->getString()))->toString();
           break;
