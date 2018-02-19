@@ -32,10 +32,40 @@ function recently_read_entity_view(array &$build, EntityInterface $entity, Entit
  * Custom function to insert aa new entry for recently read entity.
  */
 function insert_entity($entity) {
+  // SESSSION CODE
+//  if (\Drupal::currentUser()->isAnonymous()) {
+//    if (!isset($_COOKIE['user_session'])) {
+//      $cookie_name = "user_session";
+//      $cookie_value = session_id();
+//      setcookie($cookie_name, $cookie_value, time() + (86400 * 3), "/");
+//    }
+//    else {
+//      $session = $_COOKIE['user_session'];
+//    }
+//    $user_id = 0;
+//    $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
+//      'session_id' => $session,
+//      'type' => $entity->getEntityTypeId(),
+//      'entity_id' => $entity->id(),
+//    ]);
+//  }
+//  else {
+//    // Check if entry already exists.
+//    $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
+//      'user_id' => \Drupal::currentUser()->id(),
+//      'type' => $entity->getEntityTypeId(),
+//      'entity_id' => $entity->id(),
+//    ]);
+//  }
+  // If anonymous set user_id to 0.
+  $user_id = \Drupal::currentUser()->id();
+  if (\Drupal::currentUser()->isAnonymous()) {
+    $user_id = 0;
+  }
   $entityTypeManager = \Drupal::entityTypeManager();
-  // Check if entry already exists.
+  $session = NULL;
   $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
-    'user_id' => \Drupal::currentUser()->id(),
+    'user_id' => $user_id,
     'type' => $entity->getEntityTypeId(),
     'entity_id' => $entity->id(),
   ]);
@@ -49,11 +79,25 @@ function insert_entity($entity) {
     // Create new.
     $recentlyRead = RecentlyRead::create([
       'type' => $entity->getEntityTypeId(),
-      'user_id' => \Drupal::currentUser()->id(),
+      'user_id' => $user_id,
       'entity_id' => $entity->id(),
-      'session_id' => 0,
+      'session_id' => $session,
       'created' => time(),
     ]);
     $recentlyRead->save();
+  }
+}
+
+/**
+ * Implements hook_hook().
+ */
+function recently_read_cron() {
+  // Query to get all recently_read entries older then two weeks.
+  $query = \Drupal::entityQuery('recently_read')->condition('created', strtotime('-2 week'), '<=');
+  $recently_read_ids = $query->execute();
+  foreach ($recently_read_ids as $rid) {
+    // Delete data.
+    $recently_read = RecentlyRead::load($rid);
+    $recently_read->delete();
   }
 }
