@@ -18,8 +18,10 @@ function recently_read_entity_view(array &$build, EntityInterface $entity, Entit
     if ($readTypeConfig && $readTypeConfig->get('enabled')) {
       // Get allowed types for nodes/taxonomy.
       $allowedTypes = $readTypeConfig->getTypes();
-      if ($allowedTypes && in_array($entity->bundle(), $allowedTypes)) {
-        insert_entity($entity);
+      if ($allowedTypes) {
+        if (in_array($entity->bundle(), $allowedTypes)) {
+          insert_entity($entity);
+        }
       }
       else {
         insert_entity($entity);
