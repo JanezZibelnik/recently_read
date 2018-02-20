@@ -49,7 +49,7 @@ class RecentlyReadTypeForm extends EntityForm {
     if ($route_name == "node") {
       $types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
     }
-    if ($route_name == "taxonomy") {
+    if ($route_name == "taxonomy_term") {
       $types = Vocabulary::loadMultiple();
     }
     $form['label'] = [
