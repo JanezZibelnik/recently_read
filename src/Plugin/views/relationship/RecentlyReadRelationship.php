@@ -105,11 +105,11 @@ class RecentlyReadRelationship extends RelationshipPluginBase {
           'numeric' => TRUE,
         ];
 
-        $this->query->addWhere($this->options['group'], "recently_read.session_id", session_id(), "=");
+        $this->query->addWhere(0, "recently_read.session_id", session_id(), "=");
        }
        else
        {
-         $this->query->addWhere($this->options['group'], "recently_read.user_id", $this->currentUser->id(), "=");
+         $this->query->addWhere(0, "recently_read.user_id", $this->currentUser->id(), "=");
        }
     }
 

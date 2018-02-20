@@ -43,6 +43,8 @@ class RecentlyReadTypeForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
+    $types = [];
+
     $entity = $this->entity;
     $route_parameters = $this->routeMatch->getParameters();
     $route_name = $route_parameters->get('recently_read_type')->id();
