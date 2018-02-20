@@ -4,7 +4,7 @@
  */
 
   function recently_read_views_data_alter(array &$data) {
-    $data['recently_read']['sessions']['relationship'] = [
+    /*$data['recently_read']['sessions']['relationship'] = [
       'title' => t('Recently read user'),
       'label' => t('Recently read user'),
       'help' => t('Reference to Recently read user'),
@@ -13,7 +13,7 @@
       'base' => 'sessions',
       'base field' => 'sid',
       'field' => 'session_id',
-    ];
+    ];*/
 
     $data['recently_read']['entity_link'] = [
       'title' => t('Entity link'),
@@ -21,6 +21,16 @@
         'title' => t('Recently read entity link'),
         'help' => t('Links specific entity by type.'),
         'id' => 'recently_read_entity_link',
+      ],
+    ];
+
+    $data['views']['recently_read_user_filter'] = [
+      'title' => t('Recently read user filter'),
+      'filter' => [
+        'title' => t('Recently read user filter'),
+        'group' => t('Recently read'),
+        'help' => t('Provides user filter for recently read'),
+        'id' => 'recently_read_user_filter'
       ],
     ];
 

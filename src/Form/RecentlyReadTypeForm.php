@@ -76,6 +76,10 @@ class RecentlyReadTypeForm extends EntityForm {
       '#type' => 'checkbox',
       '#default_value' => $entity->get('enabled'),
       '#title' => $this->t("Enabled"),
+      '#ajax' => [
+        'callback' => '::enabled_callback',
+        'wrapper' => 'types'
+      ]
     ];
 
     $options = [];
@@ -89,6 +93,9 @@ class RecentlyReadTypeForm extends EntityForm {
         '#options' => $options,
         '#default_value' => $entity->get('types'),
         '#title' => $this->t('Track'),
+        '#required' => $form_state->getValue('enabled') !== null && $form_state->getValue('enabled') ? 1 : 0,
+        '#prefix' => '<div id="types">',
+        '#suffix' => '</div>',
       ];
     }
 
@@ -115,6 +122,13 @@ class RecentlyReadTypeForm extends EntityForm {
         ]));
     }
     $form_state->setRedirectUrl($recently_read_type->toUrl('collection'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function enabled_callback(array &$form, FormStateInterface $form_state) {
+    return $form['types'];
   }
 
 }
