@@ -93,6 +93,9 @@ class RecentlyReadRelationship extends RelationshipPluginBase {
     $this->ensureMyTable();
 
     if ($this->options['user_scope'] == 'current') {
+
+      // Add in the SID from Session API for anonymous users.
+
       if ($this->currentUser->isAnonymous()) {
         // Disable page caching for anonymous users.
         $this->pageCacheKillSwitch->trigger();
