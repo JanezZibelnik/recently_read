@@ -15,14 +15,14 @@
       'field' => 'session_id',
     ];
 
-    $data['recently_read']['entity_link'] = array(
+    $data['recently_read']['entity_link'] = [
       'title' => t('Entity link'),
-      'field' => array(
+      'field' => [
         'title' => t('Recently read entity link'),
         'help' => t('Links specific entity by type.'),
         'id' => 'recently_read_entity_link',
-      ),
-    );
+      ],
+    ];
 
     return $data;
   }
