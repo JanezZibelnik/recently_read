@@ -24,5 +24,5 @@
       ),
     );
 
-    ksm($data);
+    return $data;
   }

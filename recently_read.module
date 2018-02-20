@@ -32,43 +32,24 @@ function recently_read_entity_view(array &$build, EntityInterface $entity, Entit
  * Custom function to insert aa new entry for recently read entity.
  */
 function insert_entity($entity) {
-  // SESSSION CODE
-//  if (\Drupal::currentUser()->isAnonymous()) {
-//    if (!isset($_COOKIE['user_session'])) {
-//      $cookie_name = "user_session";
-//      $cookie_value = session_id();
-//      setcookie($cookie_name, $cookie_value, time() + (86400 * 3), "/");
-//    }
-//    else {
-//      $session = $_COOKIE['user_session'];
-//    }
-//    $user_id = 0;
-//    $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
-//      'session_id' => $session,
-//      'type' => $entity->getEntityTypeId(),
-//      'entity_id' => $entity->id(),
-//    ]);
-//  }
-//  else {
-//    // Check if entry already exists.
-//    $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
-//      'user_id' => \Drupal::currentUser()->id(),
-//      'type' => $entity->getEntityTypeId(),
-//      'entity_id' => $entity->id(),
-//    ]);
-//  }
-  // If anonymous set user_id to 0.
   $user_id = \Drupal::currentUser()->id();
+  $entityTypeManager = \Drupal::entityTypeManager();
+  // If anonymous set user_id to 0 and check for any existing entries.
   if (\Drupal::currentUser()->isAnonymous()) {
     $user_id = 0;
+    $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
+      'session_id' => session_id(),
+      'type' => $entity->getEntityTypeId(),
+      'entity_id' => $entity->id(),
+    ]);
   }
-  $entityTypeManager = \Drupal::entityTypeManager();
-  $session = NULL;
-  $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
-    'user_id' => $user_id,
-    'type' => $entity->getEntityTypeId(),
-    'entity_id' => $entity->id(),
-  ]);
+  else {
+    $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
+      'user_id' => $user_id,
+      'type' => $entity->getEntityTypeId(),
+      'entity_id' => $entity->id(),
+    ]);
+  }
   // If exists then update created else create new.
   if (!empty($exists)) {
     foreach ($exists as $entry) {
@@ -77,7 +58,6 @@ function insert_entity($entity) {
   }
   else {
     // Create new.
-
     $recentlyRead = RecentlyRead::create([
       'type' => $entity->getEntityTypeId(),
       'user_id' => $user_id,
