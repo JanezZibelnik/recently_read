@@ -105,7 +105,6 @@ class RecentlyReadRelationship extends RelationshipPluginBase {
         $this->definition['extra'][] = [
           'field' => 'sid',
           'value' => session_id(),
-          'numeric' => TRUE,
         ];
 
         $this->query->addWhere(0, "recently_read.session_id", session_id(), "=");
