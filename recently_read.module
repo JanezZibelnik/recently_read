@@ -12,21 +12,38 @@ function recently_read_entity_view(array &$build, EntityInterface $entity, Entit
   // Disable cache.
   $renderer = \Drupal::service('renderer');
   $renderer->addCacheableDependency($build, $entity->id());
-  if ($view_mode === 'full') {
-    // Load recently read config if exists and if its enabled for this entity.
-    $readTypeConfig = RecentlyReadType::load($entity->getEntityTypeId());
-    if ($readTypeConfig && $readTypeConfig->get('enabled')) {
-      // Get allowed types for nodes/taxonomy.
-      $allowedTypes = $readTypeConfig->getTypes();
-      if ($allowedTypes) {
+  $readTypeConfig = RecentlyReadType::load($entity->getEntityTypeId());
+  $entityType = $entity->getEntityTypeId();
+  switch ($entityType) {
+    case ($entityType == "comment" && $view_mode === "full"):
+      if ($readTypeConfig && $readTypeConfig->get('enabled')) {
+        insert_entity($entity);
+      }
+      break;
+
+    case ($entityType == "node" && $view_mode === "full"):
+      if ($readTypeConfig && $readTypeConfig->get('enabled')) {
+        $allowedTypes = $readTypeConfig->getTypes();
         if (in_array($entity->bundle(), $allowedTypes)) {
           insert_entity($entity);
         }
       }
-      else {
+      break;
+
+    case ($entityType == "taxonomy_term" && $view_mode === "full"):
+      if ($readTypeConfig && $readTypeConfig->get('enabled')) {
+        $allowedTypes = $readTypeConfig->getTypes();
+        if (in_array($entity->bundle(), $allowedTypes)) {
+          insert_entity($entity);
+        }
+      }
+      break;
+
+    case ($entityType == "user" && $view_mode === "full"):
+      if ($readTypeConfig && $readTypeConfig->get('enabled')) {
         insert_entity($entity);
       }
-    }
+      break;
   }
 }
 
