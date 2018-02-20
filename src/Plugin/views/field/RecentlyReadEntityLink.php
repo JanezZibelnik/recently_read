@@ -43,7 +43,7 @@ class RecentlyReadEntityLink extends FieldPluginBase {
           return Link::fromTextAndUrl(t(User::load($entity->get('entity_id')->getString())->label()), Url::fromUri('internal:/user/'.$entity->get('entity_id')->getString()))->toString();
           break;
         case 'taxonomy_term':
-          return Link::fromTextAndUrl(t(Term::load($entity->get('entity_id')->getString())->label()), Url::fromUri('internal:/taxonomy_term/'.$entity->get('entity_id')->getString()))->toString();
+          return Link::fromTextAndUrl(t(Term::load($entity->get('entity_id')->getString())->label()), Url::fromUri('internal:/taxonomy/term/'.$entity->get('entity_id')->getString()))->toString();
           break;
         default:
           return Link::fromTextAndUrl(t(Node::load($entity->get('entity_id')->getString())->label()), Url::fromUri('internal:/node/'.$entity->get('entity_id')->getString()))->toString();
