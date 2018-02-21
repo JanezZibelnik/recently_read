@@ -86,7 +86,7 @@ class RecentlyReadTypeForm extends EntityForm {
     foreach ($types as $typeId => $type) {
       $options[$typeId] = $type->label();
     }
-
+    $form['types'] = [];
     if (count($options) > 0) {
       $form['types'] = [
         '#type' => 'checkboxes',
