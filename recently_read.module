@@ -5,6 +5,18 @@ use Drupal\recently_read\Entity\RecentlyRead;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function recently_read_preprocess_html(&$variables) {
+  $recently_read_types = \Drupal\recently_read\Entity\RecentlyReadType::loadMultiple();
+  foreach ($recently_read_types as $type) {
+    $r = $type->id();
+    $i = 0 ;
+  }
+}
+
 /**
  * Implements hook_entity_view().
  */
@@ -12,43 +24,49 @@ function recently_read_entity_view(array &$build, EntityInterface $entity, Entit
   // Disable cache.
   $renderer = \Drupal::service('renderer');
   $renderer->addCacheableDependency($build, $entity->id());
+  // Get recently read config for current entity.
   $readTypeConfig = RecentlyReadType::load($entity->getEntityTypeId());
   $entityType = $entity->getEntityTypeId();
+  // TEMP FIX to show only comment as recently read a not entire node+comments.
+  // TODO: Find a better "drupal" way to do this.
+  $url = $_SERVER['REQUEST_URI'];
+  $explode = explode('/', $url);
+  if (in_array('comment', $explode)) {
+    $comment = TRUE;
+    $cid = end($explode);
+    $entity = \Drupal::entityTypeManager()->getStorage('comment')->load($cid);
+    if (RecentlyReadType::load('comment')->get('enabled')) {
+      insert_entity($entity);
+    }
+  }
+  // Check entity type and act properly based on entityType.
   switch ($entityType) {
-    case ($entityType == "comment" && $view_mode === "full"):
-      if ($readTypeConfig && $readTypeConfig->get('enabled')) {
+    case ($entityType == "comment" && $view_mode === "full" && $readTypeConfig->get('enabled')):
+      insert_entity($entity);
+      break;
+
+    case ($entityType == "node" && $view_mode === "full" && $readTypeConfig->get('enabled') && $comment == FALSE):
+      $allowedTypes = $readTypeConfig->getTypes();
+      if (in_array($entity->bundle(), $allowedTypes)) {
         insert_entity($entity);
       }
       break;
 
-    case ($entityType == "node" && $view_mode === "full"):
-      if ($readTypeConfig && $readTypeConfig->get('enabled')) {
-        $allowedTypes = $readTypeConfig->getTypes();
-        if (in_array($entity->bundle(), $allowedTypes)) {
-          insert_entity($entity);
-        }
-      }
-      break;
-
-    case ($entityType == "taxonomy_term" && $view_mode === "full"):
-      if ($readTypeConfig && $readTypeConfig->get('enabled')) {
-        $allowedTypes = $readTypeConfig->getTypes();
-        if (in_array($entity->bundle(), $allowedTypes)) {
-          insert_entity($entity);
-        }
-      }
-      break;
-
-    case ($entityType == "user" && $view_mode === "full"):
-      if ($readTypeConfig && $readTypeConfig->get('enabled')) {
+    case ($entityType == "taxonomy_term" && $view_mode === "full" && $readTypeConfig->get('enabled')):
+      $allowedTypes = $readTypeConfig->getTypes();
+      if (in_array($entity->bundle(), $allowedTypes)) {
         insert_entity($entity);
       }
+      break;
+
+    case ($entityType == "user" && $view_mode === "full" && $readTypeConfig->get('enabled')):
+      insert_entity($entity);
       break;
   }
 }
 
 /**
- * Custom function to insert aa new entry for recently read entity.
+ * Custom function to insert aa new entry for recently read.
  */
 function insert_entity($entity) {
   $user_id = \Drupal::currentUser()->id();

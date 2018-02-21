@@ -9,7 +9,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *
  * @ConfigEntityType(
  *   id = "recently_read_type",
- *   label = @Translation("Recently read config"),
+ *   label = @Translation("Recently read type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "list_builder" = "Drupal\recently_read\RecentlyReadTypeListBuilder",

@@ -17,7 +17,7 @@ use Drupal\user\UserInterface;
  * @ContentEntityType(
  *   id = "recently_read",
  *   label = @Translation("Recently read"),
- *   bundle_label = @Translation("Recently read config"),
+ *   bundle_label = @Translation("Recently read type"),
  *   fieldable = FALSE,
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
