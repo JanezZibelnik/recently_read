@@ -21,7 +21,7 @@ use Drupal\user\UserInterface;
  *   fieldable = FALSE,
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "views_data" = "Drupal\recently_read\Entity\RecentlyReadViewsData",
+ *     "views_data" = "Drupal\views\EntityViewsData",
  *     "route_provider" = {
  *       "html" = "Drupal\recently_read\RecentlyReadHtmlRouteProvider",
  *     },

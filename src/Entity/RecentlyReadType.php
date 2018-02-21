@@ -19,7 +19,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *       "edit" = "Drupal\recently_read\Form\RecentlyReadTypeForm",
  *     },
  *     "route_provider" = {
- *       "html" = "Drupal\recently_read\RecentlyReadTypeHtmlRouteProvider",
+ *       "html" = "Drupal\Core\Entity\Routing\DefaultHtmlRouteProvider",
  *     },
  *   },
  *   config_prefix = "recently_read_type",

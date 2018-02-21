@@ -24,7 +24,7 @@ class RecentlyReadTypeListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    if ($entity->get('enabled') == 1 ) {
+    if ($entity->get('enabled') == 1) {
       $enabled = "Yes";
     }
     else {
