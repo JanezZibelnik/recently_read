@@ -3,6 +3,8 @@
 namespace Drupal\recently_read\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
+use Drupal\Core\Entity\EntityStorageInterface;
+
 
 /**
  * Defines the Recently read type entity.
@@ -70,6 +72,18 @@ class RecentlyReadType extends ConfigEntityBundleBase implements RecentlyReadTyp
    */
   public function getTypes() {
     return array_filter($this->get('types'));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    $types = array_filter($this->get('types'));
+    sort($types);
+
+    $this->set('types', $types);
   }
 
 }
