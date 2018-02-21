@@ -5,5 +5,4 @@ id: node
 label: Node
 enabled: true
 types:
-  article: article
-  page: '0'
+  - article
