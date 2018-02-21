@@ -1,5 +1,3 @@
-// $Id$
-
 == SUMMARY ==
 
 The Recently Read module displays the history of recently read Entity
@@ -25,8 +23,13 @@ To create new view of recently read , just add a relationship Recently read(see 
 
 == CONTACT ==
 First versions of Recently read module were written by Przemyslaw Gorecki and
-Terry Zhang. Recently read 8.x was written by nkoporec and zibelnik.
+Terry Zhang. Recently read 8.x was written by Nejc Koporec and Janez Zibelnik.
 
-Current maintainer:
+Maintainer for 8.x:
 * Nejc Koporec(nkoporec) - https://www.drupal.org/u/nkoporec
 * Janez Zibelnik(janezzibelnik) - https://www.drupal.org/u/janezzibelnik
+
+Maintainer for 7.x
+* Przemyslaw Gorecki (pgorecki) - http://drupal.org/user/642012
+* Terry Zhang (zterry95) - http://drupal.org/user/1952394
+
