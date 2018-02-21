@@ -1,3 +1,9 @@
+langcode: en
+status: true
+dependencies: {  }
 id: node
-label: 'Node'
-
+label: Node
+enabled: true
+types:
+  article: article
+  page: '0'

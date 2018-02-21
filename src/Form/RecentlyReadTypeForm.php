@@ -107,6 +107,8 @@ class RecentlyReadTypeForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     $recently_read_type = $this->entity;
+    ksm($recently_read_type);
+    $recently_read_type->set('types', array_filter(array_values($recently_read_type->getTypes())));
     $status = $recently_read_type->save();
 
     switch ($status) {
