@@ -1,7 +1,12 @@
 <?php
 
+use Drupal\recently_read\Entity\RecentlyReadType;
+
+/**
+ * Implements hook_views_data_alter().
+ */
 function recently_read_views_data_alter(array &$data) {
-  $recently_read_types = \Drupal\recently_read\Entity\RecentlyReadType::loadMultiple();
+  $recently_read_types = RecentlyReadType::loadMultiple();
   $entity_type_manager = \Drupal::entityTypeManager();
   foreach ($recently_read_types as $type) {
     $entity_type_id = $type->id();
@@ -18,20 +23,11 @@ function recently_read_views_data_alter(array &$data) {
           'base field' => 'entity_id',
           'relationship field' => $entity_type->getKey('id'),
           'id' => 'recently_read_relationship',
+          'recently_read_type' => $entity_type_id,
+          'base_table' => $base_table,
         ],
       ];
     }
   }
-
-  $data['views']['recently_read_user_filter'] = [
-    'title' => t('Recently read user filter'),
-    'filter' => [
-      'title' => t('Recently read user filter'),
-      'group' => t('Recently read'),
-      'help' => t('Provides user filter for recently read'),
-      'id' => 'recently_read_user_filter'
-    ],
-  ];
-
 }
 
