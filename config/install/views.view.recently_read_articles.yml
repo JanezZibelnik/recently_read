@@ -1,4 +1,3 @@
-uuid: 05683875-84bf-44f8-b03d-69050eeb066d
 langcode: en
 status: true
 dependencies:
@@ -133,7 +132,22 @@ display:
           expose:
             operator: ''
           group: 1
-      sorts: {  }
+      sorts:
+        created:
+          id: created
+          table: recently_read
+          field: created
+          relationship: recently_read_relationship
+          group_type: group
+          admin_label: ''
+          order: DESC
+          exposed: false
+          expose:
+            label: ''
+          granularity: second
+          entity_type: recently_read
+          entity_field: created
+          plugin_id: date
       title: 'Recently read articles'
       header: {  }
       footer: {  }
