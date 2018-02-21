@@ -21,15 +21,15 @@ class RecentlyReadRelationship extends RelationshipPluginBase {
     $basetable = $this->definition['base_table'];
     $entity_type = $this->definition['recently_read_type'];
     // Add query for selected entity type.
-    $this->query->addWhere($this->options['group'], "recently_read_$basetable.type", $entity_type, "=");
+    $this->query->addWhere('recently_read', "recently_read_$basetable.type", $entity_type, "=");
     // Add query to filter data if auth.user or anonymous.
     if (\Drupal::currentUser()->id() === 0) {
       // Disable page caching for anonymous users.
       \Drupal::service('page_cache_kill_switch')->trigger();
-      $this->query->addWhere($this->options['group'], "recently_read_$basetable.session_id", session_id(), "=");
+      $this->query->addWhere('recently_read', "recently_read_$basetable.session_id", session_id(), "=");
     }
     else {
-      $this->query->addWhere($this->options['group'], "recently_read_$basetable.user_id", \Drupal::currentUser()->id(), "=");
+      $this->query->addWhere('recently_read', "recently_read_$basetable.user_id", \Drupal::currentUser()->id(), "=");
     }
   }
 

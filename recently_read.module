@@ -18,6 +18,7 @@ function recently_read_entity_view(array &$build, EntityInterface $entity, Entit
   // TEMP FIX to show only comment as recently read a not entire node+comments.
   // TODO: Find a better "drupal" way to do this.
   $url = $_SERVER['REQUEST_URI'];
+  $comment = FALSE;
   $explode = explode('/', $url);
   if (in_array('comment', $explode)) {
     $comment = TRUE;
