@@ -161,6 +161,8 @@ display:
           group_type: group
           admin_label: 'Recently read'
           required: false
+          bundles:
+            article: article
           entity_type: node
           plugin_id: recently_read_relationship
       arguments: {  }
