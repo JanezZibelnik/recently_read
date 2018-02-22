@@ -9,6 +9,8 @@ use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
  * Implements hook_entity_view().
  */
 function recently_read_entity_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  $recentlyRead = \Drupal::service('recently_read');
+
   // Disable cache.
   $renderer = \Drupal::service('renderer');
   $renderer->addCacheableDependency($build, $entity->id());
@@ -25,73 +27,32 @@ function recently_read_entity_view(array &$build, EntityInterface $entity, Entit
     $cid = end($explode);
     $entity = \Drupal::entityTypeManager()->getStorage('comment')->load($cid);
     if (RecentlyReadType::load('comment')->get('enabled')) {
-      insert_entity($entity);
+      $recentlyRead->insert_entity($entity);
     }
   }
   // Check entity type and act properly based on entityType.
   switch ($entityType) {
     case ($entityType == "comment" && $view_mode === "full" && $readTypeConfig->get('enabled')):
-      insert_entity($entity);
+      $recentlyRead->insert_entity($entity);
       break;
 
     case ($entityType == "node" && $view_mode === "full" && $readTypeConfig->get('enabled') && $comment == FALSE):
       $allowedTypes = $readTypeConfig->getTypes();
       if (in_array($entity->bundle(), $allowedTypes)) {
-        insert_entity($entity);
+        $recentlyRead->insert_entity($entity);
       }
       break;
 
     case ($entityType == "taxonomy_term" && $view_mode === "full" && $readTypeConfig->get('enabled')):
       $allowedTypes = $readTypeConfig->getTypes();
       if (in_array($entity->bundle(), $allowedTypes)) {
-        insert_entity($entity);
+        $recentlyRead->insert_entity($entity);
       }
       break;
 
     case ($entityType == "user" && $view_mode === "full" && $readTypeConfig->get('enabled')):
-      insert_entity($entity);
+      $recentlyRead->insert_entity($entity);
       break;
-  }
-}
-
-/**
- * Custom function to insert aa new entry for recently read.
- */
-function insert_entity($entity) {
-  $user_id = \Drupal::currentUser()->id();
-  $entityTypeManager = \Drupal::entityTypeManager();
-  // If anonymous set user_id to 0 and check for any existing entries.
-  if (\Drupal::currentUser()->isAnonymous()) {
-    $user_id = 0;
-    $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
-      'session_id' => session_id(),
-      'type' => $entity->getEntityTypeId(),
-      'entity_id' => $entity->id(),
-    ]);
-  }
-  else {
-    $exists = $entityTypeManager->getStorage('recently_read')->loadByProperties([
-      'user_id' => $user_id,
-      'type' => $entity->getEntityTypeId(),
-      'entity_id' => $entity->id(),
-    ]);
-  }
-  // If exists then update created else create new.
-  if (!empty($exists)) {
-    foreach ($exists as $entry) {
-      $entry->setCreatedTime(time())->save();
-    }
-  }
-  else {
-    // Create new.
-    $recentlyRead = RecentlyRead::create([
-      'type' => $entity->getEntityTypeId(),
-      'user_id' => $user_id,
-      'entity_id' => $entity->id(),
-      'session_id' => $user_id ? 0 : session_id(),
-      'created' => time(),
-    ]);
-    $recentlyRead->save();
   }
 }
 

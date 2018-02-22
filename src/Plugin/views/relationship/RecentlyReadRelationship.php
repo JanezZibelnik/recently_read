@@ -108,8 +108,6 @@ class RecentlyReadRelationship extends RelationshipPluginBase {
         '#options' => $typesOptions,
       ];
     }
-
-    $form['#cache']['max-age'] = 0;
   }
   /**
    * {@inheritdoc}
