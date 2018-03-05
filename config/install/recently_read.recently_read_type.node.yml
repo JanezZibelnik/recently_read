@@ -1,8 +1,2 @@
-langcode: en
-status: true
-dependencies: {  }
 id: node
-label: Node
-enabled: true
-types:
-  - article
+label: 'Node'

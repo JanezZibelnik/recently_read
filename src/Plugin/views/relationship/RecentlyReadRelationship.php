@@ -88,14 +88,13 @@ class RecentlyReadRelationship extends RelationshipPluginBase {
     parent::buildOptionsForm($form, $form_state);
 
     $entity_type = $this->definition['recently_read_type'];
-    $typesOptions = false;
+    $typesOptions = FALSE;
 
-    // Read the entity_type configuration and load the types
+    // Read the entity_type configuration and load the types.
     $types = $this->cachedStorage->read('recently_read.recently_read_type.'.$entity_type)['types'];
 
-    // If types are enabled prepare the array for checkboxes options
-    if (isset($types) && !empty($types))
-    {
+    // If types are enabled prepare the array for checkboxes options.
+    if (isset($types) && !empty($types)) {
       $typesOptions = array_combine($types, $types);
     }
 
@@ -104,11 +103,11 @@ class RecentlyReadRelationship extends RelationshipPluginBase {
         '#type' => 'checkboxes',
         '#title' => $this->t('Bundles'),
         '#default_value' => $this->options['bundles'],
-        '#required' => TRUE,
         '#options' => $typesOptions,
       ];
     }
   }
+
   /**
    * {@inheritdoc}
    */
@@ -130,8 +129,8 @@ class RecentlyReadRelationship extends RelationshipPluginBase {
       $this->query->addWhere('recently_read', "recently_read_$basetable.user_id", $this->currentUser->id(), "=");
     }
 
-    // Filter by entity bundles selected while configuring the relationship
-    if(!empty($this->options['bundles'])) {
+    // Filter by entity bundles selected while configuring the relationship.
+    if (!empty(array_filter($this->options['bundles']))) {
       $this->query->addWhere('recently_read', "$basetable.type", array_filter(array_values($this->options['bundles'])), "IN");
     }
   }

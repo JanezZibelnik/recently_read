@@ -5,10 +5,10 @@ dependencies:
     - node
     - recently_read
     - user
-id: recently_read_articles
-label: 'Recently read articles'
+id: recently_read_content
+label: 'Recently read content'
 module: views
-description: 'Recently read articles'
+description: 'Track recently read content'
 tag: ''
 base_table: node_field_data
 base_field: nid
@@ -148,7 +148,7 @@ display:
           entity_type: recently_read
           entity_field: created
           plugin_id: date
-      title: 'Recently read articles'
+      title: 'Recently read content'
       header: {  }
       footer: {  }
       empty: {  }
@@ -161,8 +161,6 @@ display:
           group_type: group
           admin_label: 'Recently read'
           required: false
-          bundles:
-            article: article
           entity_type: node
           plugin_id: recently_read_relationship
       arguments: {  }
